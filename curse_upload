@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FILE_NAME=`echo "StandardExpansion-BQS_VER_KEY.jar"`
+FILE_NAME=`echo "NPCIntegration-BQ_NPC_VER.jar"`
 FILE_LOCATION=`echo "./build/libs/$FILE_NAME"`
 CHANGE_LOG=`git log -1 --pretty=format:"%B"`
 
@@ -9,6 +9,6 @@ JSON=`printf '{"changelog": "%s", "gameVersions": [4449], "releaseType": "releas
 
 echo "Uploading $FILE_NAME to Curse Forge..."
 echo
-RESPONSE=`curl -H "X-Api-Token: $CURSE_API_KEY" -X POST  -F metadata="$JSON"  -F file="@$FILE_LOCATION" https://minecraft.curseforge.com/api/projects/238857/upload-file`
+RESPONSE=`curl -H "X-Api-Token: $CURSE_API_KEY" -X POST  -F metadata="$JSON"  -F file="@$FILE_LOCATION" https://minecraft.curseforge.com/api/projects/241475/upload-file`
 echo
 echo $RESPONSE

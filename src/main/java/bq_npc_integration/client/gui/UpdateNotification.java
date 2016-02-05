@@ -32,7 +32,7 @@ public class UpdateNotification
 		
 		try
 		{
-			String[] data = getNotification("", true).split("\\n"); // TODO: NEED URL
+			String[] data = getNotification("http://bit.ly/1SNSYKv", true).split("\\n");
 			
 			if(BQN_Settings.hideUpdates)
 			{

@@ -6,6 +6,7 @@ import betterquesting.quests.tasks.TaskRegistry;
 import bq_npc_integration.core.proxies.CommonProxy;
 import bq_npc_integration.handlers.ConfigHandler;
 import bq_npc_integration.tasks.TaskNpcDialog;
+import bq_npc_integration.tasks.TaskNpcFaction;
 import bq_npc_integration.tasks.TaskNpcQuest;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -53,6 +54,7 @@ public class BQ_NPCs
     	
     	TaskRegistry.RegisterTask(TaskNpcQuest.class, "npc_quest");
     	TaskRegistry.RegisterTask(TaskNpcDialog.class, "npc_dialog");
+    	TaskRegistry.RegisterTask(TaskNpcFaction.class, "npc_faction");
     }
     
     @EventHandler

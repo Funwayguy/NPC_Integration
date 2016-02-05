@@ -22,7 +22,7 @@ public class TaskNpcDialog extends TaskBase
 	@Override
 	public void Update(EntityPlayer player)
 	{
-		if(player == null || player.worldObj.isRemote || player.worldObj.getTotalWorldTime()%60 != 0 || isComplete(player.getUniqueID()) || QuestDatabase.editMode)
+		if(player.worldObj.getTotalWorldTime()%60 != 0 || isComplete(player.getUniqueID()) || QuestDatabase.editMode)
 		{
 			return;
 		}
@@ -33,7 +33,7 @@ public class TaskNpcDialog extends TaskBase
 	@Override
 	public void Detect(EntityPlayer player)
 	{
-		if(player == null || player.worldObj.isRemote)
+		if(isComplete(player.getUniqueID()))
 		{
 			return;
 		}
