@@ -1,0 +1,16 @@
+[
+{
+  "modid": "bq_npc_integration",
+  "name": "NPC Integration",
+  "description": "Provides tasks and rewards to integrate Custom NPCs into Better Questing",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Funwayguy"],
+  "credits": "TheMattaBase, Noppes",
+  "logoFile": "title.png",
+  "screenshots": [],
+  "dependencies": ["betterquesting","customnpcs"]
+}
+]

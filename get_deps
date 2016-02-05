@@ -1,0 +1,2 @@
+echo "Downloading dependencies..."
+curl -u Funwayguy:$BB_PASS -o dependencies/CustomNpcs-1.7.10d.jar https://bitbucket.org/Funwayguy/moddependencies/raw/master/CustomNpcs-1.7.10d.jar
