@@ -22,7 +22,7 @@ public class TaskNpcDialog extends TaskBase
 	@Override
 	public void Update(EntityPlayer player)
 	{
-		if(player.worldObj.getTotalWorldTime()%60 != 0 || isComplete(player.getUniqueID()) || QuestDatabase.editMode)
+		if(player.ticksExisted%60 != 0 || QuestDatabase.editMode)
 		{
 			return;
 		}

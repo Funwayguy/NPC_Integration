@@ -10,11 +10,11 @@ import betterquesting.client.gui.misc.GuiEmbedded;
 import betterquesting.client.themes.ThemeRegistry;
 import bq_npc_integration.tasks.TaskNpcFaction;
 
-public class GuiTaskFaction extends GuiEmbedded
+public class GuiTaskNpcFaction extends GuiEmbedded
 {
 	TaskNpcFaction task;
 	
-	public GuiTaskFaction(TaskNpcFaction task, GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
+	public GuiTaskNpcFaction(TaskNpcFaction task, GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
 	{
 		super(screen, posX, posY, sizeX, sizeY);
 		this.task = task;

@@ -10,7 +10,7 @@ import betterquesting.client.gui.misc.GuiEmbedded;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.utils.JsonHelper;
-import bq_npc_integration.client.gui.tasks.GuiTaskFaction;
+import bq_npc_integration.client.gui.tasks.GuiTaskNpcFaction;
 import bq_npc_integration.core.BQ_NPCs;
 import com.google.gson.JsonObject;
 
@@ -29,7 +29,7 @@ public class TaskNpcFaction extends TaskBase
 	@Override
 	public void Update(EntityPlayer player)
 	{
-		if(player.worldObj.getWorldTime()%60 != 0 || isComplete(player.getUniqueID()) || QuestDatabase.editMode)
+		if(player.ticksExisted%60 != 0 || QuestDatabase.editMode)
 		{
 			return;
 		}
@@ -117,7 +117,7 @@ public class TaskNpcFaction extends TaskBase
 	@Override
 	public GuiEmbedded getGui(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
 	{
-		return new GuiTaskFaction(this, screen, posX, posY, sizeX, sizeY);
+		return new GuiTaskNpcFaction(this, screen, posX, posY, sizeX, sizeY);
 	}
 	
 	public static enum PointOperation
