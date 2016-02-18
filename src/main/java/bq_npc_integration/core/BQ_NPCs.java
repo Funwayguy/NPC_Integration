@@ -6,6 +6,7 @@ import betterquesting.quests.rewards.RewardRegistry;
 import betterquesting.quests.tasks.TaskRegistry;
 import bq_npc_integration.core.proxies.CommonProxy;
 import bq_npc_integration.handlers.ConfigHandler;
+import bq_npc_integration.rewards.RewardNpcFaction;
 import bq_npc_integration.rewards.RewardNpcMail;
 import bq_npc_integration.tasks.TaskNpcDialog;
 import bq_npc_integration.tasks.TaskNpcFaction;
@@ -57,9 +58,9 @@ public class BQ_NPCs
     	TaskRegistry.RegisterTask(TaskNpcQuest.class, "npc_quest");
     	TaskRegistry.RegisterTask(TaskNpcDialog.class, "npc_dialog");
     	TaskRegistry.RegisterTask(TaskNpcFaction.class, "npc_faction");
-    	//TaskRegistry.RegisterTask(TaskNpcMail.class, "npc_mail"); // Players can't send mail to NPCs :(
     	
     	RewardRegistry.RegisterReward(RewardNpcMail.class, "npc_mail");
+    	RewardRegistry.RegisterReward(RewardNpcFaction.class, "npc_faction");
     }
     
     @EventHandler
