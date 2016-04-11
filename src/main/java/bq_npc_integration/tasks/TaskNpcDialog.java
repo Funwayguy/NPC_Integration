@@ -1,7 +1,5 @@
 package bq_npc_integration.tasks;
 
-import java.util.ArrayList;
-import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import noppes.npcs.controllers.PlayerData;
 import noppes.npcs.controllers.PlayerDataController;
@@ -47,7 +45,7 @@ public class TaskNpcDialog extends TaskBase
 		
 		if(pData.dialogData.dialogsRead.contains(npcDialogID))
 		{
-			this.completeUsers.add(player.getUniqueID());
+			setCompletion(player.getUniqueID(), true);
 		}
 	}
 	
@@ -55,18 +53,6 @@ public class TaskNpcDialog extends TaskBase
 	public String getUnlocalisedName()
 	{
 		return BQ_NPCs.MODID + ".task.dialog";
-	}
-	
-	@Override
-	public void ResetProgress(UUID uuid)
-	{
-		this.completeUsers.remove(uuid);
-	}
-	
-	@Override
-	public void ResetAllProgress()
-	{
-		this.completeUsers = new ArrayList<UUID>();
 	}
 	
 	@Override

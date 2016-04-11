@@ -1,7 +1,5 @@
 package bq_npc_integration.tasks;
 
-import java.util.ArrayList;
-import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import noppes.npcs.controllers.PlayerQuestController;
 import betterquesting.client.gui.GuiQuesting;
@@ -38,20 +36,8 @@ public class TaskNpcQuest extends TaskBase
 		
 		if(PlayerQuestController.isQuestFinished(player, npcQuestID))
 		{
-			completeUsers.add(player.getUniqueID());
+			setCompletion(player.getUniqueID(), true);
 		}
-	}
-	
-	@Override
-	public void ResetAllProgress()
-	{
-		this.completeUsers = new ArrayList<UUID>();
-	}
-	
-	@Override
-	public void ResetProgress(UUID uuid)
-	{
-		this.completeUsers.remove(uuid);
 	}
 	
 	@Override
