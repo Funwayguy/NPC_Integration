@@ -7,6 +7,7 @@ import betterquesting.client.gui.misc.GuiEmbedded;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.utils.JsonHelper;
+import bq_npc_integration.NpcQuestDB;
 import bq_npc_integration.client.gui.tasks.GuiTaskNpcQuest;
 import bq_npc_integration.core.BQ_NPCs;
 import com.google.gson.JsonObject;
@@ -37,6 +38,7 @@ public class TaskNpcQuest extends TaskBase
 		if(PlayerQuestController.isQuestFinished(player, npcQuestID))
 		{
 			setCompletion(player.getUniqueID(), true);
+			NpcQuestDB.UpdateClients();
 		}
 	}
 	

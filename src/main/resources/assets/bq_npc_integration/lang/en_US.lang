@@ -8,3 +8,6 @@ bq_npc_integration.reward.mail=Mail Reward
 
 bq_npc_integration.gui.faction_name=Faction: %s
 bq_npc_integration.gui.mail=Letter from %s
+bq_npc_integration.gui.quest=Quest: %s
+bq_npc_integration.gui.dialog=Dialog: %s
+bq_npc_integration.gui.status=Status: %s
