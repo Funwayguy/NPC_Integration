@@ -1,11 +1,14 @@
 package bq_npc_integration.core;
 
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Logger;
+import betterquesting.network.PacketTypeRegistry;
 import betterquesting.quests.rewards.RewardRegistry;
 import betterquesting.quests.tasks.TaskRegistry;
 import bq_npc_integration.core.proxies.CommonProxy;
 import bq_npc_integration.handlers.ConfigHandler;
+import bq_npc_integration.network.PktHandlerNpcQuests;
 import bq_npc_integration.rewards.RewardNpcFaction;
 import bq_npc_integration.rewards.RewardNpcMail;
 import bq_npc_integration.tasks.TaskNpcDialog;
@@ -48,6 +51,8 @@ public class BQ_NPCs
     	ConfigHandler.initConfigs();
     	
     	proxy.registerHandlers();
+    	
+    	PacketTypeRegistry.RegisterType(new PktHandlerNpcQuests(), new ResourceLocation(MODID + ":npc_quests"));
     }
     
     @EventHandler
@@ -55,12 +60,12 @@ public class BQ_NPCs
     {
     	proxy.registerThemes();
     	
-    	TaskRegistry.RegisterTask(TaskNpcQuest.class, "npc_quest");
-    	TaskRegistry.RegisterTask(TaskNpcDialog.class, "npc_dialog");
-    	TaskRegistry.RegisterTask(TaskNpcFaction.class, "npc_faction");
+    	TaskRegistry.RegisterTask(TaskNpcQuest.class, new ResourceLocation(MODID + ":npc_quest"));
+    	TaskRegistry.RegisterTask(TaskNpcDialog.class, new ResourceLocation(MODID + ":npc_dialog"));
+    	TaskRegistry.RegisterTask(TaskNpcFaction.class, new ResourceLocation(MODID + ":npc_faction"));
     	
-    	RewardRegistry.RegisterReward(RewardNpcMail.class, "npc_mail");
-    	RewardRegistry.RegisterReward(RewardNpcFaction.class, "npc_faction");
+    	RewardRegistry.RegisterReward(RewardNpcMail.class, new ResourceLocation(MODID + ":npc_mail"));
+    	RewardRegistry.RegisterReward(RewardNpcFaction.class, new ResourceLocation(MODID + ":npc_faction"));
     }
     
     @EventHandler

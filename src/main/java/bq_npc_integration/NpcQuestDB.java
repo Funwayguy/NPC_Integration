@@ -1,7 +1,6 @@
 package bq_npc_integration;
 
 import java.util.HashMap;
-import org.apache.logging.log4j.Level;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -9,8 +8,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.event.world.WorldEvent;
 import noppes.npcs.controllers.Quest;
 import noppes.npcs.controllers.QuestController;
+import org.apache.logging.log4j.Level;
+import betterquesting.network.PacketAssembly;
 import bq_npc_integration.core.BQ_NPCs;
-import bq_npc_integration.network.PacketNpc.PacketNPCType;
+import bq_npc_integration.network.NpcPacketType;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 
@@ -22,7 +23,7 @@ public class NpcQuestDB
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		writeToNBT(tags);
-		BQ_NPCs.instance.network.sendToAll(PacketNPCType.SYNC_QUESTS.makePacket(tags));
+		PacketAssembly.SendToAll(NpcPacketType.SYNC_QUESTS.GetLocation(), tags);
 	}
 	
 	public static void SendDatabase(EntityPlayerMP player)
@@ -30,7 +31,7 @@ public class NpcQuestDB
 		BQ_NPCs.logger.log(Level.INFO, "Sending NPC DB to " + player.getCommandSenderName());
 		NBTTagCompound tags = new NBTTagCompound();
 		writeToNBT(tags);
-		BQ_NPCs.instance.network.sendTo(PacketNPCType.SYNC_QUESTS.makePacket(tags), player);
+		PacketAssembly.SendTo(NpcPacketType.SYNC_QUESTS.GetLocation(), tags, player);
 	}
 	
 	public static void readFromNBT(NBTTagCompound tags)
