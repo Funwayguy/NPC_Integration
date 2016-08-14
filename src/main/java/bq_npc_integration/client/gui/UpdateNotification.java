@@ -61,9 +61,6 @@ public class UpdateNotification
 						event.player.addChatMessage(new ChatComponentText(data[i].trim()));
 					}
 				}
-			} else if(verStat == 0)
-			{
-				event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.YELLOW + BQ_NPCs.NAME + " " + BQ_NPCs.VERSION + " is up to date"));
 			} else if(verStat == 1)
 			{
 				event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + BQ_NPCs.NAME + " " + BQ_NPCs.VERSION + " is a debug build"));

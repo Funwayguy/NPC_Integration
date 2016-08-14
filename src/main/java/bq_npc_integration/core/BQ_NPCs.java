@@ -8,6 +8,7 @@ import betterquesting.quests.rewards.RewardRegistry;
 import betterquesting.quests.tasks.TaskRegistry;
 import bq_npc_integration.core.proxies.CommonProxy;
 import bq_npc_integration.handlers.ConfigHandler;
+import bq_npc_integration.network.NpcPacketType;
 import bq_npc_integration.network.PktHandlerNpcQuests;
 import bq_npc_integration.rewards.RewardNpcFaction;
 import bq_npc_integration.rewards.RewardNpcMail;
@@ -52,7 +53,7 @@ public class BQ_NPCs
     	
     	proxy.registerHandlers();
     	
-    	PacketTypeRegistry.RegisterType(new PktHandlerNpcQuests(), new ResourceLocation(MODID + ":npc_quests"));
+    	PacketTypeRegistry.RegisterType(new PktHandlerNpcQuests(), NpcPacketType.SYNC_QUESTS.GetLocation());
     }
     
     @EventHandler

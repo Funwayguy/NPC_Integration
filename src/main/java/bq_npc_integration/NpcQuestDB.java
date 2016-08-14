@@ -8,9 +8,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.event.world.WorldEvent;
 import noppes.npcs.controllers.Quest;
 import noppes.npcs.controllers.QuestController;
-import org.apache.logging.log4j.Level;
 import betterquesting.network.PacketAssembly;
-import bq_npc_integration.core.BQ_NPCs;
 import bq_npc_integration.network.NpcPacketType;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
@@ -28,7 +26,6 @@ public class NpcQuestDB
 	
 	public static void SendDatabase(EntityPlayerMP player)
 	{
-		BQ_NPCs.logger.log(Level.INFO, "Sending NPC DB to " + player.getCommandSenderName());
 		NBTTagCompound tags = new NBTTagCompound();
 		writeToNBT(tags);
 		PacketAssembly.SendTo(NpcPacketType.SYNC_QUESTS.GetLocation(), tags, player);
@@ -66,7 +63,7 @@ public class NpcQuestDB
 	@SubscribeEvent
 	public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event)
 	{
-		if(event.player instanceof EntityPlayerMP)
+		if(!event.player.worldObj.isRemote && event.player instanceof EntityPlayerMP)
 		{
 			SendDatabase((EntityPlayerMP)event.player);
 		}
@@ -102,7 +99,7 @@ public class NpcQuestDB
 		if(!event.world.isRemote && !MinecraftServer.getServer().isServerRunning())
 		{
 			loaded = false;
-			npcQuests = new HashMap<Integer, Quest>();
+			npcQuests.clear();
 		}
 	}
 }
