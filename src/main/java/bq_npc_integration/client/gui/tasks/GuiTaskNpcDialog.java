@@ -21,6 +21,12 @@ public class GuiTaskNpcDialog extends GuiEmbedded
 		super(screen, posX, posY, sizeX, sizeY);
 		this.task = task;
 		this.desc = new GuiScrollingText(screen, sizeX, sizeY - 24, posY + 24, posX, task.desc);
+		
+		if(DialogController.instance == null)
+		{
+			DialogController.instance = new DialogController();
+		}
+		
 		this.dialog = DialogController.instance.dialogs.get(task.npcDialogID);
 	}
 
