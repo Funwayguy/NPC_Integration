@@ -29,7 +29,9 @@ import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 public class BQ_NPCs
 {
     public static final String MODID = "bq_npc_integration";
-    public static final String VERSION = "BQ_NPC_VER";
+    public static final String VERSION = "CI_MOD_VERSION";
+    public static final String HASH = "CI_MOD_HASH";
+    public static final String BRANCH = "CI_MOD_BRANCH";
     public static final String NAME = "NPC Integration";
     public static final String PROXY = "bq_npc_integration.core.proxies";
     public static final String CHANNEL = "BQ_NPC_INT";
