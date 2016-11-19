@@ -27,7 +27,7 @@ public class GuiTaskNpcFaction extends GuiEmbedded
 		String factName = fact != null? I18n.format("bq_npc_integration.gui.faction_name", fact.name) : "?";
 		int points = -1;
 		
-		PlayerData pData = PlayerDataController.instance.getPlayerData(screen.mc.thePlayer);
+		PlayerData pData = PlayerDataController.instance.getDataFromUsername(screen.mc.thePlayer.getServer(), screen.mc.thePlayer.getName());
 		
 		if(pData == null || !pData.factionData.factionData.containsKey(task.factionID))
 		{
@@ -37,8 +37,8 @@ public class GuiTaskNpcFaction extends GuiEmbedded
 			points = pData.factionData.getFactionPoints(task.factionID);
 		}
 		
-		screen.mc.fontRenderer.drawString(factName, posX, posY, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		screen.mc.fontRenderer.drawString(points + " " + task.operation.GetText() + " " + task.target, posX, posY + 12, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		screen.mc.fontRendererObj.drawString(factName, posX, posY, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		screen.mc.fontRendererObj.drawString(points + " " + task.operation.GetText() + " " + task.target, posX, posY + 12, ThemeRegistry.curTheme().textColor().getRGB(), false);
 	}
 	
 }

@@ -33,7 +33,7 @@ public class RewardNpcFaction extends RewardBase
 	@Override
 	public void Claim(EntityPlayer player, NBTTagCompound choiceData)
 	{
-		PlayerData pData = PlayerDataController.instance.getPlayerData(player);
+		PlayerData pData = PlayerDataController.instance.getDataFromUsername(player.getServer(), player.getName());
 		
 		if(pData == null || !pData.factionData.factionData.containsKey(factionID))
 		{

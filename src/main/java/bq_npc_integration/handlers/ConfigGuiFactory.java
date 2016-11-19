@@ -3,8 +3,8 @@ package bq_npc_integration.handlers;
 import java.util.Set;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraftforge.fml.client.IModGuiFactory;
 import bq_npc_integration.client.gui.GuiBQNConfig;
-import cpw.mods.fml.client.IModGuiFactory;
 
 public class ConfigGuiFactory implements IModGuiFactory
 {
@@ -24,8 +24,9 @@ public class ConfigGuiFactory implements IModGuiFactory
 	{
 		return null;
 	}
-
+	
 	@Override
+	@SuppressWarnings("deprecation")
 	public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element)
 	{
 		return null;

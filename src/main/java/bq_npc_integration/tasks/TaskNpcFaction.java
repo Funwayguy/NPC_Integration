@@ -43,7 +43,7 @@ public class TaskNpcFaction extends TaskBase
 			return;
 		}
 		
-		PlayerData pData = PlayerDataController.instance.getPlayerData(player);
+		PlayerData pData = PlayerDataController.instance.getDataFromUsername(player.getServer(), player.getName());
 		
 		if(pData == null || !pData.factionData.factionData.containsKey(factionID))
 		{

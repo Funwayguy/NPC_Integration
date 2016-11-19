@@ -36,7 +36,7 @@ public class RewardNpcMail extends RewardBase
 	{
 		if(mail.isValid())
 		{
-			PlayerDataController.instance.addPlayerMessage(player.getCommandSenderName(), mail.copy());
+			PlayerDataController.instance.addPlayerMessage(player.getServer(), player.getName(), mail.copy());
 		} else
 		{
 			BQ_NPCs.logger.log(Level.ERROR, "Tried to claim an invalid mail reward!");

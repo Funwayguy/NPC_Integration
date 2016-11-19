@@ -1,8 +1,8 @@
 package bq_npc_integration.core.proxies;
 
+import net.minecraftforge.common.MinecraftForge;
 import bq_npc_integration.NpcQuestDB;
 import bq_npc_integration.client.gui.UpdateNotification;
-import cpw.mods.fml.common.FMLCommonHandler;
 
 public class CommonProxy
 {
@@ -13,8 +13,8 @@ public class CommonProxy
 	
 	public void registerHandlers()
 	{
-		FMLCommonHandler.instance().bus().register(new UpdateNotification());
-		FMLCommonHandler.instance().bus().register(new NpcQuestDB());
+		MinecraftForge.EVENT_BUS.register(new UpdateNotification());
+		MinecraftForge.EVENT_BUS.register(new NpcQuestDB());
 	}
 
 	public void registerThemes()

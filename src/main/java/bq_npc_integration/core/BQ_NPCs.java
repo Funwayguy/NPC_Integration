@@ -2,6 +2,15 @@ package bq_npc_integration.core;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.Mod.Instance;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import org.apache.logging.log4j.Logger;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.quests.rewards.RewardRegistry;
@@ -15,21 +24,14 @@ import bq_npc_integration.rewards.RewardNpcMail;
 import bq_npc_integration.tasks.TaskNpcDialog;
 import bq_npc_integration.tasks.TaskNpcFaction;
 import bq_npc_integration.tasks.TaskNpcQuest;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 
 @Mod(modid = BQ_NPCs.MODID, version = BQ_NPCs.VERSION, name = BQ_NPCs.NAME, guiFactory = "bq_npc_integration.handlers.ConfigGuiFactory")
 public class BQ_NPCs
 {
     public static final String MODID = "bq_npc_integration";
-    public static final String VERSION = "BQ_NPC_VER";
+    public static final String VERSION = "CI_MOD_VERSION";
+    public static final String HASH = "CI_MOD_HASH";
+    public static final String BRANCH = "CI_MOD_BRANCH";
     public static final String NAME = "NPC Integration";
     public static final String PROXY = "bq_npc_integration.core.proxies";
     public static final String CHANNEL = "BQ_NPC_INT";

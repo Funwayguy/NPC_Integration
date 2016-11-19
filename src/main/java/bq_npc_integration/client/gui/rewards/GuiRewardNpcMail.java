@@ -31,6 +31,6 @@ public class GuiRewardNpcMail extends GuiEmbedded
 		GL11.glPopMatrix();
 		
 		String txt = I18n.format("bq_npc_integration.gui.mail", task.mail.sender);
-		screen.mc.fontRenderer.drawString(txt, posX + sizeX/2 - screen.mc.fontRenderer.getStringWidth(txt)/2, posY + sizeY/2 + 4, ThemeRegistry.curTheme().textColor().getRGB(), true);
+		screen.mc.fontRendererObj.drawString(txt, posX + sizeX/2 - screen.mc.fontRendererObj.getStringWidth(txt)/2, posY + sizeY/2 + 4, ThemeRegistry.curTheme().textColor().getRGB(), true);
 	}
 }

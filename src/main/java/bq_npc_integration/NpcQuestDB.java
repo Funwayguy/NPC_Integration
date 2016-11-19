@@ -4,14 +4,13 @@ import java.util.HashMap;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import noppes.npcs.controllers.Quest;
 import noppes.npcs.controllers.QuestController;
 import betterquesting.network.PacketAssembly;
 import bq_npc_integration.network.NpcPacketType;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
 
 public class NpcQuestDB
 {
@@ -74,7 +73,7 @@ public class NpcQuestDB
 	@SubscribeEvent
 	public void onWorldLoad(WorldEvent.Load event)
 	{
-		if(event.world.isRemote || loaded)
+		if(event.getWorld().isRemote || loaded)
 		{
 			return;
 		}
@@ -96,7 +95,7 @@ public class NpcQuestDB
 	@SubscribeEvent
 	public void onWorldUnload(WorldEvent.Unload event)
 	{
-		if(!event.world.isRemote && !MinecraftServer.getServer().isServerRunning())
+		if(!event.getWorld().isRemote && !event.getWorld().getMinecraftServer().isServerRunning())
 		{
 			loaded = false;
 			npcQuests.clear();

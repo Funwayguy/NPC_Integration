@@ -3,12 +3,14 @@ package bq_npc_integration.client.gui;
 import java.io.BufferedInputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
+import java.util.ArrayList;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import org.apache.logging.log4j.Level;
 import bq_npc_integration.core.BQN_Settings;
 import bq_npc_integration.core.BQ_NPCs;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
 
 public class UpdateNotification
 {
@@ -24,9 +26,9 @@ public class UpdateNotification
 		
 		hasChecked = true;
 		
-		if(BQ_NPCs.VERSION == "BQ_NPC_" + "VER")
+		if(BQ_NPCs.HASH == "CI_MOD_" + "HASH")
 		{
-			event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "THIS COPY OF " + BQ_NPCs.NAME.toUpperCase() + " IS NOT FOR PUBLIC USE!"));
+			event.player.addChatMessage(new TextComponentString(TextFormatting.RED + "THIS COPY OF " + BQ_NPCs.NAME.toUpperCase() + " IS NOT FOR PUBLIC USE!"));
 			return;
 		}
 		
@@ -39,39 +41,72 @@ public class UpdateNotification
 				return;
 			}
 			
-			String version = data[0].trim();
-			String link = data[1].trim();
+			ArrayList<String> changelog = new ArrayList<String>();
+			boolean hasLog = false;
 			
-			int verStat = compareVersions(BQ_NPCs.VERSION, version);
-			
-			if(verStat == -1)
+			for(String s : data)
 			{
-				event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Update " + version + " of " + BQ_NPCs.NAME + " available!"));
-				event.player.addChatMessage(new ChatComponentText("Download:"));
-				event.player.addChatMessage(new ChatComponentText("" + EnumChatFormatting.BLUE + EnumChatFormatting.UNDERLINE + link));
+				if(s.equalsIgnoreCase("git_branch:" + BQ_NPCs.BRANCH))
+				{
+					if(!hasLog)
+					{
+						hasLog = true;
+						changelog.add(s);
+						continue;
+					} else
+					{
+						break;
+					}
+				} else if(s.toLowerCase().startsWith("git_branch:"))
+				{
+					if(hasLog)
+					{
+						break;
+					} else
+					{
+						continue;
+					}
+				} else if(hasLog)
+				{
+					changelog.add(s);
+				}
+			}
+			
+			if(!hasLog || data.length < 2)
+			{
+				event.player.addChatMessage(new TextComponentString(TextFormatting.RED + "An error has occured while checking " + BQ_NPCs.NAME + " version!"));
+				BQ_NPCs.logger.log(Level.ERROR, "An error has occured while checking " + BQ_NPCs.NAME + " version! (hasLog: " + hasLog + ", data: " + data.length + ")");
+				return;
+			} else
+			{
+				// Only the relevant portion of the changelog is preserved
+				data = changelog.toArray(new String[0]);
+			}
+			
+			String hash = data[1].trim();
+			
+			boolean hasUpdate = !BQ_NPCs.HASH.equalsIgnoreCase(hash);
+			
+			if(hasUpdate)
+			{
+				event.player.addChatMessage(new TextComponentString(TextFormatting.RED + "Update for " + BQ_NPCs.NAME + " available!"));
+				event.player.addChatMessage(new TextComponentString("Download: https://minecraft.curseforge.com/projects/better-questing-standard-expansion"));
 				
 				for(int i = 2; i < data.length; i++)
 				{
 					if(i > 5)
 					{
-						event.player.addChatMessage(new ChatComponentText("and " + (data.length - 6) + " more..."));
+						event.player.addChatMessage(new TextComponentString("and " + (data.length - 5) + " more..."));
 						break;
 					} else
 					{
-						event.player.addChatMessage(new ChatComponentText(data[i].trim()));
+						event.player.addChatMessage(new TextComponentString("- " + data[i].trim()));
 					}
 				}
-			} else if(verStat == 1)
-			{
-				event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + BQ_NPCs.NAME + " " + BQ_NPCs.VERSION + " is a debug build"));
-			} else if(verStat == -2)
-			{
-				event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "An error has occured while checking " + BQ_NPCs.NAME + " version!"));
 			}
-			
 		} catch(Exception e)
 		{
-			event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "An error has occured while checking " + BQ_NPCs.NAME + " version!"));
+			event.player.addChatMessage(new TextComponentString(TextFormatting.RED + "An error has occured while checking " + BQ_NPCs.NAME + " version!"));
 			e.printStackTrace();
 			return;
 		}

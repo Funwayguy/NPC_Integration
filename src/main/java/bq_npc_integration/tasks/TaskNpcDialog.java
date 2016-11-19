@@ -36,7 +36,7 @@ public class TaskNpcDialog extends TaskBase
 			return;
 		}
 		
-		PlayerData pData = PlayerDataController.instance.getPlayerData(player);
+		PlayerData pData = PlayerDataController.instance.getDataFromUsername(player.getServer(), player.getName());
 		
 		if(pData == null)
 		{
