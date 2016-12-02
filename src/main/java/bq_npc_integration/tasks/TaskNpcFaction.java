@@ -86,7 +86,7 @@ public class TaskNpcFaction implements ITask
 	@Override
 	public void detect(EntityPlayer player, IQuest quest)
 	{
-		if(isComplete(player.getUniqueID()))
+		if(isComplete(QuestingAPI.getQuestingUUID(player)))
 		{
 			return;
 		}
@@ -123,7 +123,7 @@ public class TaskNpcFaction implements ITask
 		
 		if(flag)
 		{
-			setComplete(player.getUniqueID());
+			setComplete(QuestingAPI.getQuestingUUID(player));
 		}
 	}
 	

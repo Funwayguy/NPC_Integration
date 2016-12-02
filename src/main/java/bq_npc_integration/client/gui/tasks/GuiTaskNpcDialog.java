@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import noppes.npcs.controllers.Dialog;
 import noppes.npcs.controllers.DialogController;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.client.gui.lists.GuiScrollingText;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
@@ -47,7 +48,7 @@ public class GuiTaskNpcDialog extends GuiElement implements IGuiEmbedded
 		}
 		
 		mc.fontRenderer.drawString(I18n.format("bq_npc_integration.gui.dialog", dialog.title), posX, posY, getTextColor());
-		String txt = task.isComplete(mc.thePlayer.getUniqueID())? I18n.format("betterquesting.tooltip.complete") : I18n.format("betterquesting.tooltip.incomplete");
+		String txt = task.isComplete(QuestingAPI.getQuestingUUID(mc.thePlayer))? I18n.format("betterquesting.tooltip.complete") : I18n.format("betterquesting.tooltip.incomplete");
 		mc.fontRenderer.drawString(I18n.format("bq_npc_integration.gui.status", txt), posX, posY + 10, getTextColor());
 		desc.drawBackground(mx, my, partialTick);
 	}

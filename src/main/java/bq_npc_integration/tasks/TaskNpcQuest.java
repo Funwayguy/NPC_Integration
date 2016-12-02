@@ -84,14 +84,14 @@ public class TaskNpcQuest implements ITask
 	@Override
 	public void detect(EntityPlayer player, IQuest quest)
 	{
-		if(isComplete(player.getUniqueID()))
+		if(isComplete(QuestingAPI.getQuestingUUID(player)))
 		{
 			return;
 		}
 		
 		if(PlayerQuestController.isQuestFinished(player, npcQuestID))
 		{
-			setComplete(player.getUniqueID());
+			setComplete(QuestingAPI.getQuestingUUID(player));
 			NpcQuestDB.UpdateClients();
 		}
 	}

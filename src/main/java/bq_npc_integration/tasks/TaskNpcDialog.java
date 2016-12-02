@@ -85,7 +85,7 @@ public class TaskNpcDialog implements ITask
 	@Override
 	public void detect(EntityPlayer player, IQuest quest)
 	{
-		if(isComplete(player.getUniqueID()))
+		if(isComplete(QuestingAPI.getQuestingUUID(player)))
 		{
 			return;
 		}
@@ -99,7 +99,7 @@ public class TaskNpcDialog implements ITask
 		
 		if(pData.dialogData.dialogsRead.contains(npcDialogID))
 		{
-			setComplete(player.getUniqueID());
+			setComplete(QuestingAPI.getQuestingUUID(player));
 		}
 	}
 	

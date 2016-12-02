@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 import noppes.npcs.controllers.Quest;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.client.gui.lists.GuiScrollingText;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
@@ -37,7 +38,7 @@ public class GuiTaskNpcQuest extends GuiElement implements IGuiEmbedded
 	public void drawBackground(int mx, int my, float partialTick)
 	{
 		mc.fontRenderer.drawString(I18n.format("bq_npc_integration.gui.quest", npcQuest == null? "?" : npcQuest.title), posX, posY, getTextColor());
-		String txt = task.isComplete(mc.thePlayer.getUniqueID())? (EnumChatFormatting.GREEN + I18n.format("betterquesting.tooltip.complete")) : (EnumChatFormatting.RED + I18n.format("betterquesting.tooltip.incomplete"));
+		String txt = task.isComplete(QuestingAPI.getQuestingUUID(mc.thePlayer))? (EnumChatFormatting.GREEN + I18n.format("betterquesting.tooltip.complete")) : (EnumChatFormatting.RED + I18n.format("betterquesting.tooltip.incomplete"));
 		mc.fontRenderer.drawString(I18n.format("bq_npc_integration.gui.status", txt), posX, posY + 10, getTextColor());
 		textScroll.drawBackground(mx, my, partialTick);
 	}
