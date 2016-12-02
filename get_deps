@@ -1,3 +1,4 @@
 echo "Downloading dependencies..."
+mkdir -p libs
 curl -k -o make_logs https://gist.githubusercontent.com/Funwayguy/4bf42dd7f9c05d9f94be8337e3d6b178/raw/npc_integration_make_logs
 curl -u Funwayguy:$BB_PASS -o libs/CustomNpcs-1.7.10d.jar https://bitbucket.org/Funwayguy/moddependencies/raw/master/CustomNpcs-1.7.10d.jar
