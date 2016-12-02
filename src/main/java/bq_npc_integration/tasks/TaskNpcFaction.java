@@ -1,22 +1,43 @@
 package bq_npc_integration.tasks;
 
+import java.util.ArrayList;
+import java.util.UUID;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ResourceLocation;
 import noppes.npcs.controllers.PlayerData;
 import noppes.npcs.controllers.PlayerDataController;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiEmbedded;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.tasks.TaskBase;
-import betterquesting.utils.JsonHelper;
+import org.apache.logging.log4j.Level;
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.client.gui.misc.IGuiEmbedded;
+import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.jdoc.IJsonDoc;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.tasks.ITask;
+import betterquesting.api.utils.JsonHelper;
 import bq_npc_integration.client.gui.tasks.GuiTaskNpcFaction;
 import bq_npc_integration.core.BQ_NPCs;
+import bq_npc_integration.tasks.factory.FactoryTaskFaction;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
-public class TaskNpcFaction extends TaskBase
+public class TaskNpcFaction implements ITask
 {
+	private ArrayList<UUID> completeUsers = new ArrayList<UUID>();
+	
 	public int factionID = 0;
 	public int target = 10;
 	public PointOperation operation = PointOperation.MORE_OR_EQUAL;
+	
+	@Override
+	public ResourceLocation getFactoryID()
+	{
+		return FactoryTaskFaction.INSTANCE.getRegistryName();
+	}
 	
 	@Override
 	public String getUnlocalisedName()
@@ -25,25 +46,52 @@ public class TaskNpcFaction extends TaskBase
 	}
 	
 	@Override
-	public void Update(EntityPlayer player)
+	public boolean isComplete(UUID uuid)
 	{
-		if(player.ticksExisted%60 != 0 || QuestDatabase.editMode)
-		{
-			return;
-		}
-		
-		Detect(player);
+		return completeUsers.contains(uuid);
 	}
 	
 	@Override
-	public void Detect(EntityPlayer player)
+	public void setComplete(UUID uuid)
 	{
-		if(isComplete(player.getUniqueID()))
+		if(!completeUsers.contains(uuid))
+		{
+			completeUsers.add(uuid);
+		}
+	}
+
+	@Override
+	public void resetUser(UUID uuid)
+	{
+		completeUsers.remove(uuid);
+	}
+
+	@Override
+	public void resetAll()
+	{
+		completeUsers.clear();
+	}
+	
+	@Override
+	public void update(EntityPlayer player, IQuest quest)
+	{
+		if(player.ticksExisted%60 != 0 || QuestingAPI.getAPI(ApiReference.SETTINGS).getProperty(NativeProps.EDIT_MODE))
 		{
 			return;
 		}
 		
-		PlayerData pData = PlayerDataController.instance.getDataFromUsername(player.getServer(), player.getName());
+		detect(player, quest);
+	}
+	
+	@Override
+	public void detect(EntityPlayer player, IQuest quest)
+	{
+		if(isComplete(QuestingAPI.getQuestingUUID(player)))
+		{
+			return;
+		}
+		
+		PlayerData pData = PlayerDataController.instance.getDataFromUsername(player.getServer(), player.getGameProfile().getName());
 		
 		if(pData == null || !pData.factionData.factionData.containsKey(factionID))
 		{
@@ -75,14 +123,21 @@ public class TaskNpcFaction extends TaskBase
 		
 		if(flag)
 		{
-			setCompletion(player.getUniqueID(), true);
+			setComplete(QuestingAPI.getQuestingUUID(player));
 		}
 	}
 	
 	@Override
-	public void readFromJson(JsonObject json)
+	public void readFromJson(JsonObject json, EnumSaveType saveType)
 	{
-		super.readFromJson(json);
+		if(saveType == EnumSaveType.PROGRESS)
+		{
+			readFromJson_Progress(json);
+			return;
+		} else if(saveType != EnumSaveType.CONFIG)
+		{
+			return;
+		}
 		
 		factionID = JsonHelper.GetNumber(json, "factionID", 0).intValue();
 		target = JsonHelper.GetNumber(json, "target", 1).intValue();
@@ -90,20 +145,60 @@ public class TaskNpcFaction extends TaskBase
 		operation = operation != null? operation : PointOperation.MORE_OR_EQUAL;
 	}
 	
-	@Override
-	public void writeToJson(JsonObject json)
+	private void readFromJson_Progress(JsonObject json)
 	{
-		super.writeToJson(json);
+		completeUsers = new ArrayList<UUID>();
+		for(JsonElement entry : JsonHelper.GetArray(json, "completeUsers"))
+		{
+			if(entry == null || !entry.isJsonPrimitive())
+			{
+				continue;
+			}
+			
+			try
+			{
+				completeUsers.add(UUID.fromString(entry.getAsString()));
+			} catch(Exception e)
+			{
+				BQ_NPCs.logger.log(Level.ERROR, "Unable to load UUID for task", e);
+			}
+		}
+	}
+	
+	@Override
+	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
+	{
+		if(saveType == EnumSaveType.PROGRESS)
+		{
+			return writeToJson_Progress(json);
+		} else if(saveType != EnumSaveType.CONFIG)
+		{
+			return json;
+		}
 		
 		json.addProperty("factionID", factionID);
 		json.addProperty("target", target);
 		json.addProperty("operation", operation.name());
+		
+		return json;
+	}
+	
+	private JsonObject writeToJson_Progress(JsonObject json)
+	{
+		JsonArray jArray = new JsonArray();
+		for(UUID uuid : completeUsers)
+		{
+			jArray.add(new JsonPrimitive(uuid.toString()));
+		}
+		json.add("completeUsers", jArray);
+		
+		return json;
 	}
 	
 	@Override
-	public GuiEmbedded getGui(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
+	public IGuiEmbedded getTaskGui(int posX, int posY, int sizeX, int sizeY, IQuest quest)
 	{
-		return new GuiTaskNpcFaction(this, screen, posX, posY, sizeX, sizeY);
+		return new GuiTaskNpcFaction(this, posX, posY, sizeX, sizeY);
 	}
 	
 	public static enum PointOperation
@@ -124,5 +219,17 @@ public class TaskNpcFaction extends TaskBase
 		{
 			return text;
 		}
+	}
+
+	@Override
+	public IJsonDoc getDocumentation()
+	{
+		return null;
+	}
+
+	@Override
+	public GuiScreen getTaskEditor(GuiScreen parent, IQuest quest)
+	{
+		return null;
 	}
 }

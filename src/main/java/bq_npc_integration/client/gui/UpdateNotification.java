@@ -90,7 +90,7 @@ public class UpdateNotification
 			if(hasUpdate)
 			{
 				event.player.addChatMessage(new TextComponentString(TextFormatting.RED + "Update for " + BQ_NPCs.NAME + " available!"));
-				event.player.addChatMessage(new TextComponentString("Download: https://minecraft.curseforge.com/projects/better-questing-standard-expansion"));
+				event.player.addChatMessage(new TextComponentString("Download: http://minecraft.curseforge.com/projects/better-questing-standard-expansion"));
 				
 				for(int i = 2; i < data.length; i++)
 				{

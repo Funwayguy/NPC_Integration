@@ -1,23 +1,34 @@
 package bq_npc_integration.rewards;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
+import net.minecraft.util.ResourceLocation;
 import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.PlayerMail;
 import org.apache.logging.log4j.Level;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiEmbedded;
-import betterquesting.quests.rewards.RewardBase;
-import betterquesting.utils.NBTConverter;
+import betterquesting.api.client.gui.misc.IGuiEmbedded;
+import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.jdoc.IJsonDoc;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.rewards.IReward;
+import betterquesting.api.utils.NBTConverter;
 import bq_npc_integration.client.gui.rewards.GuiRewardNpcMail;
 import bq_npc_integration.core.BQ_NPCs;
+import bq_npc_integration.rewards.factory.FactoryRewardMail;
 import com.google.gson.JsonObject;
 
-public class RewardNpcMail extends RewardBase
+public class RewardNpcMail implements IReward
 {
 	public PlayerMail mail = new PlayerMail();
+	
+	@Override
+	public ResourceLocation getFactoryID()
+	{
+		return FactoryRewardMail.INSTANCE.getRegistryName();
+	}
 	
 	@Override
 	public String getUnlocalisedName()
@@ -26,17 +37,17 @@ public class RewardNpcMail extends RewardBase
 	}
 	
 	@Override
-	public boolean canClaim(EntityPlayer player, NBTTagCompound choiceData)
+	public boolean canClaim(EntityPlayer player, IQuest quest)
 	{
 		return true;
 	}
 	
 	@Override
-	public void Claim(EntityPlayer player, NBTTagCompound choiceData)
+	public void claimReward(EntityPlayer player, IQuest quest)
 	{
 		if(mail.isValid())
 		{
-			PlayerDataController.instance.addPlayerMessage(player.getServer(), player.getName(), mail.copy());
+			PlayerDataController.instance.addPlayerMessage(player.getServer(), player.getGameProfile().getName(), mail.copy());
 		} else
 		{
 			BQ_NPCs.logger.log(Level.ERROR, "Tried to claim an invalid mail reward!");
@@ -44,8 +55,13 @@ public class RewardNpcMail extends RewardBase
 	}
 	
 	@Override
-	public void readFromJson(JsonObject json)
+	public void readFromJson(JsonObject json, EnumSaveType saveType)
 	{
+		if(saveType != EnumSaveType.CONFIG)
+		{
+			return;
+		}
+		
 		mail = new PlayerMail();
 		mail.readNBT(NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
 		
@@ -76,9 +92,17 @@ public class RewardNpcMail extends RewardBase
 	}
 	
 	@Override
-	public void writeToJson(JsonObject json)
+	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
 	{
+		if(saveType != EnumSaveType.CONFIG)
+		{
+			return json;
+		}
+		
 		NBTConverter.NBTtoJSON_Compound(mail.writeNBT(), json);
+		
+		return json;
+		
 		/*json.addProperty("sender", sender);
 		json.addProperty("message", message);
 		json.addProperty("subject", subject);
@@ -89,8 +113,20 @@ public class RewardNpcMail extends RewardBase
 	}
 	
 	@Override
-	public GuiEmbedded getGui(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
+	public IGuiEmbedded getRewardGui(int posX, int posY, int sizeX, int sizeY, IQuest quest)
 	{
-		return new GuiRewardNpcMail(this, screen, posX, posY, sizeX, sizeY);
+		return new GuiRewardNpcMail(this, posX, posY, sizeX, sizeY);
+	}
+
+	@Override
+	public IJsonDoc getDocumentation()
+	{
+		return null;
+	}
+
+	@Override
+	public GuiScreen getRewardEditor(GuiScreen parent, IQuest quest)
+	{
+		return null;
 	}
 }

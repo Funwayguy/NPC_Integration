@@ -9,7 +9,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import noppes.npcs.controllers.Quest;
 import noppes.npcs.controllers.QuestController;
-import betterquesting.network.PacketAssembly;
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.network.QuestingPacket;
 import bq_npc_integration.network.NpcPacketType;
 
 public class NpcQuestDB
@@ -20,14 +22,14 @@ public class NpcQuestDB
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		writeToNBT(tags);
-		PacketAssembly.SendToAll(NpcPacketType.SYNC_QUESTS.GetLocation(), tags);
+		QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToAll(new QuestingPacket(NpcPacketType.SYNC_QUESTS.GetLocation(), tags));
 	}
 	
 	public static void SendDatabase(EntityPlayerMP player)
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		writeToNBT(tags);
-		PacketAssembly.SendTo(NpcPacketType.SYNC_QUESTS.GetLocation(), tags, player);
+		QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToPlayer(new QuestingPacket(NpcPacketType.SYNC_QUESTS.GetLocation(), tags), player);
 	}
 	
 	public static void readFromNBT(NBTTagCompound tags)

@@ -17,7 +17,8 @@ public class ClientProxy extends CommonProxy
 	}
 	
 	@Override
-	public void registerThemes()
+	public void registerExpansion()
 	{
+		super.registerExpansion();
 	}
 }

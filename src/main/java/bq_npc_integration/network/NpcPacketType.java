@@ -1,7 +1,6 @@
 package bq_npc_integration.network;
 
 import net.minecraft.util.ResourceLocation;
-import betterquesting.core.BetterQuesting;
 import bq_npc_integration.core.BQ_NPCs;
 
 public enum NpcPacketType
@@ -9,13 +8,15 @@ public enum NpcPacketType
 	SYNC_QUESTS,
 	SYNC_DIALOG;
 	
-	public ResourceLocation GetLocation()
+	private final ResourceLocation ID;
+	
+	private NpcPacketType()
 	{
-		return new ResourceLocation(BQ_NPCs.MODID + ":" + this.toString().toLowerCase());
+		this.ID = new ResourceLocation(BQ_NPCs.MODID, this.toString().toLowerCase());
 	}
 	
-	public String GetName()
+	public ResourceLocation GetLocation()
 	{
-		return BetterQuesting.MODID + ":" + this.toString().toLowerCase();
+		return ID;
 	}
 }
