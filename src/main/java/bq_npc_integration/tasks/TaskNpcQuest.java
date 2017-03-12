@@ -2,11 +2,11 @@ package bq_npc_integration.tasks;
 
 import java.util.ArrayList;
 import java.util.UUID;
-import org.apache.logging.log4j.Level;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.controllers.PlayerQuestController;
+import org.apache.logging.log4j.Level;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
@@ -19,7 +19,7 @@ import betterquesting.api.utils.JsonHelper;
 import bq_npc_integration.NpcQuestDB;
 import bq_npc_integration.client.gui.tasks.GuiTaskNpcQuest;
 import bq_npc_integration.core.BQ_NPCs;
-import bq_npc_integration.tasks.factory.FactoryTaskDialog;
+import bq_npc_integration.tasks.factory.FactoryTaskQuest;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -34,7 +34,7 @@ public class TaskNpcQuest implements ITask
 	@Override
 	public ResourceLocation getFactoryID()
 	{
-		return FactoryTaskDialog.INSTANCE.getRegistryName();
+		return FactoryTaskQuest.INSTANCE.getRegistryName();
 	}
 	
 	@Override
