@@ -1,9 +1,7 @@
 package bq_npc_integration.core;
 
-import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Logger;
 import bq_npc_integration.core.proxies.CommonProxy;
-import bq_npc_integration.handlers.ConfigHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -14,7 +12,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 
-@Mod(modid = BQ_NPCs.MODID, version = BQ_NPCs.VERSION, name = BQ_NPCs.NAME, guiFactory = "bq_npc_integration.handlers.ConfigGuiFactory")
+@Mod(modid = BQ_NPCs.MODID, version = BQ_NPCs.VERSION, name = BQ_NPCs.NAME)
 public class BQ_NPCs
 {
     public static final String MODID = "bq_npc_integration";
@@ -38,9 +36,6 @@ public class BQ_NPCs
     {
     	logger = event.getModLog();
     	network = NetworkRegistry.INSTANCE.newSimpleChannel(CHANNEL);
-    	
-    	ConfigHandler.config = new Configuration(event.getSuggestedConfigurationFile(), true);
-    	ConfigHandler.initConfigs();
     	
     	proxy.registerHandlers();
     }

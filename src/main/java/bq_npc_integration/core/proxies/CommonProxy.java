@@ -3,7 +3,6 @@ package bq_npc_integration.core.proxies;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import bq_npc_integration.NpcQuestDB;
-import bq_npc_integration.client.gui.UpdateNotification;
 import bq_npc_integration.network.PktHandlerNpcQuests;
 import bq_npc_integration.rewards.factory.FactoryRewardFaction;
 import bq_npc_integration.rewards.factory.FactoryRewardMail;
@@ -21,7 +20,6 @@ public class CommonProxy
 	
 	public void registerHandlers()
 	{
-		FMLCommonHandler.instance().bus().register(new UpdateNotification());
 		FMLCommonHandler.instance().bus().register(new NpcQuestDB());
 	}
 
