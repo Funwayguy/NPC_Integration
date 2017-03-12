@@ -17,9 +17,12 @@ version = "CI_MOD_VERSION"
 group= "bq_npc_integration"
 archivesBaseName = "NPCIntegration"
 
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
 minecraft {
-    version = "1.10-12.18.0.2000-1.10.0"
-    mappings = "snapshot_20160518"
+    version = "1.10.2-12.18.3.2185"
+    mappings = "snapshot_20161111"
 }
 
 dependencies {
