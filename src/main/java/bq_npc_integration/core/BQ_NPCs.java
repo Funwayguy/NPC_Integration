@@ -1,6 +1,5 @@
 package bq_npc_integration.core;
 
-import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -12,9 +11,8 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import org.apache.logging.log4j.Logger;
 import bq_npc_integration.core.proxies.CommonProxy;
-import bq_npc_integration.handlers.ConfigHandler;
 
-@Mod(modid = BQ_NPCs.MODID, version = BQ_NPCs.VERSION, name = BQ_NPCs.NAME, guiFactory = "bq_npc_integration.handlers.ConfigGuiFactory")
+@Mod(modid = BQ_NPCs.MODID, version = BQ_NPCs.VERSION, name = BQ_NPCs.NAME)
 public class BQ_NPCs
 {
     public static final String MODID = "bq_npc_integration";
@@ -38,9 +36,6 @@ public class BQ_NPCs
     {
     	logger = event.getModLog();
     	network = NetworkRegistry.INSTANCE.newSimpleChannel(CHANNEL);
-    	
-    	ConfigHandler.config = new Configuration(event.getSuggestedConfigurationFile(), true);
-    	ConfigHandler.initConfigs();
     	
     	proxy.registerHandlers();
     }

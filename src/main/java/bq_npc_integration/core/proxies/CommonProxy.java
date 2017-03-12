@@ -4,7 +4,6 @@ import net.minecraftforge.common.MinecraftForge;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import bq_npc_integration.NpcQuestDB;
-import bq_npc_integration.client.gui.UpdateNotification;
 import bq_npc_integration.network.PktHandlerNpcQuests;
 import bq_npc_integration.rewards.factory.FactoryRewardFaction;
 import bq_npc_integration.rewards.factory.FactoryRewardMail;
@@ -21,7 +20,6 @@ public class CommonProxy
 	
 	public void registerHandlers()
 	{
-		MinecraftForge.EVENT_BUS.register(new UpdateNotification());
 		MinecraftForge.EVENT_BUS.register(new NpcQuestDB());
 	}
 
