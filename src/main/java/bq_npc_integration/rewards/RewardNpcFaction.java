@@ -2,19 +2,18 @@ package bq_npc_integration.rewards;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import noppes.npcs.controllers.PlayerData;
 import noppes.npcs.controllers.PlayerDataController;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.rewards.IReward;
-import betterquesting.api.utils.JsonHelper;
 import bq_npc_integration.client.gui.rewards.GuiRewardNpcFaction;
 import bq_npc_integration.core.BQ_NPCs;
 import bq_npc_integration.rewards.factory.FactoryRewardFaction;
-import com.google.gson.JsonObject;
+import noppes.npcs.controllers.data.PlayerData;
 
 public class RewardNpcFaction implements IReward
 {
@@ -52,7 +51,7 @@ public class RewardNpcFaction implements IReward
 		
 		if(relative)
 		{
-			pData.factionData.increasePoints(factionID, value);
+			pData.factionData.increasePoints(player, factionID, value);
 		} else
 		{
 			pData.factionData.factionData.put(factionID, value);
@@ -60,29 +59,29 @@ public class RewardNpcFaction implements IReward
 	}
 	
 	@Override
-	public void readFromJson(JsonObject json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound json, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
 			return;
 		}
 		
-		factionID = JsonHelper.GetNumber(json, "factionID", 0).intValue();
-		value = JsonHelper.GetNumber(json, "value", 1).intValue();
-		relative = JsonHelper.GetBoolean(json, "relative", true);
+		factionID = !json.hasKey("factionID", 99) ? 0 : json.getInteger("factionID");
+		value = !json.hasKey("value", 99) ? 1 : json.getInteger("value");
+		relative = !json.hasKey("relative") || json.getBoolean("relative");
 	}
 	
 	@Override
-	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound json, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
 			return json;
 		}
 		
-		json.addProperty("factionID", factionID);
-		json.addProperty("value", value);
-		json.addProperty("relative", relative);
+		json.setInteger("factionID", factionID);
+		json.setInteger("value", value);
+		json.setBoolean("relative", relative);
 		
 		return json;
 	}

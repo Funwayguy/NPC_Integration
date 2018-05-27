@@ -1,12 +1,19 @@
 package bq_npc_integration.tasks;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+
+import betterquesting.api.questing.tasks.ITickableTask;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.ResourceLocation;
-import noppes.npcs.controllers.PlayerData;
 import noppes.npcs.controllers.PlayerDataController;
+import noppes.npcs.controllers.data.PlayerData;
 import org.apache.logging.log4j.Level;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
@@ -16,18 +23,13 @@ import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.utils.JsonHelper;
 import bq_npc_integration.client.gui.tasks.GuiTaskNpcDialog;
 import bq_npc_integration.core.BQ_NPCs;
 import bq_npc_integration.tasks.factory.FactoryTaskDialog;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
-public class TaskNpcDialog implements ITask
+public class TaskNpcDialog implements ITask, ITickableTask
 {
-	private ArrayList<UUID> completeUsers = new ArrayList<UUID>();
+	private final List<UUID> completeUsers = new ArrayList<>();
 	
 	public int npcDialogID = -1;
 	public String desc = "Talk to an NPC";
@@ -72,7 +74,7 @@ public class TaskNpcDialog implements ITask
 	}
 	
 	@Override
-	public void update(EntityPlayer player, IQuest quest)
+	public void updateTask(EntityPlayer player, IQuest quest)
 	{
 		if(player.ticksExisted%60 != 0 || QuestingAPI.getAPI(ApiReference.SETTINGS).getProperty(NativeProps.EDIT_MODE))
 		{
@@ -104,63 +106,66 @@ public class TaskNpcDialog implements ITask
 	}
 	
 	@Override
-	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound json, EnumSaveType saveType)
 	{
 		if(saveType == EnumSaveType.PROGRESS)
 		{
-			return writeToJson_Progress(json);
+			return writeToNBT_Progress(json);
 		} else if(saveType != EnumSaveType.CONFIG)
 		{
 			return json;
 		}
 		
-		json.addProperty("npcDialogID", npcDialogID);
-		json.addProperty("description", desc);
+		json.setInteger("npcDialogID", npcDialogID);
+		json.setString("description", desc);
 		
 		return json;
 	}
 	
-	private JsonObject writeToJson_Progress(JsonObject json)
+	private NBTTagCompound writeToNBT_Progress(NBTTagCompound json)
 	{
-		JsonArray jArray = new JsonArray();
+		NBTTagList jArray = new NBTTagList();
 		for(UUID uuid : completeUsers)
 		{
-			jArray.add(new JsonPrimitive(uuid.toString()));
+			jArray.appendTag(new NBTTagString(uuid.toString()));
 		}
-		json.add("completeUsers", jArray);
+		json.setTag("completeUsers", jArray);
 		
 		return json;
 	}
 	
 	@Override
-	public void readFromJson(JsonObject json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound json, EnumSaveType saveType)
 	{
 		if(saveType == EnumSaveType.PROGRESS)
 		{
-			readFromJson_Progress(json);
+			readFromNBT_Progress(json);
 			return;
 		} else if(saveType != EnumSaveType.CONFIG)
 		{
 			return;
 		}
 		
-		npcDialogID = JsonHelper.GetNumber(json, "npcDialogID", -1).intValue();
-		desc = JsonHelper.GetString(json, "description", "Talk to an NPC");
+		npcDialogID = !json.hasKey("npcDialogID", 99) ? -1 : json.getInteger("npcDialogID");
+		desc = !json.hasKey("description", 8) ? "Talk toan NPC" : json.getString("description");
 	}
 	
-	private void readFromJson_Progress(JsonObject json)
+	private void readFromNBT_Progress(NBTTagCompound json)
 	{
-		completeUsers = new ArrayList<UUID>();
-		for(JsonElement entry : JsonHelper.GetArray(json, "completeUsers"))
+		completeUsers.clear();
+		NBTTagList cList = json.getTagList("completeUsers", 8);
+		for(int i = 0; i < cList.tagCount(); i++)
 		{
-			if(entry == null || !entry.isJsonPrimitive())
+			NBTBase entry = cList.get(i);
+			
+			if(entry.getId() != 8)
 			{
 				continue;
 			}
 			
 			try
 			{
-				completeUsers.add(UUID.fromString(entry.getAsString()));
+				completeUsers.add(UUID.fromString(((NBTTagString)entry).getString()));
 			} catch(Exception e)
 			{
 				BQ_NPCs.logger.log(Level.ERROR, "Unable to load UUID for task", e);

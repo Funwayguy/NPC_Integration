@@ -1,11 +1,11 @@
 package bq_npc_integration.rewards.factory;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.misc.IFactory;
 import bq_npc_integration.core.BQ_NPCs;
 import bq_npc_integration.rewards.RewardNpcFaction;
-import com.google.gson.JsonObject;
 
 public class FactoryRewardFaction implements IFactory<RewardNpcFaction>
 {
@@ -30,10 +30,10 @@ public class FactoryRewardFaction implements IFactory<RewardNpcFaction>
 	}
 
 	@Override
-	public RewardNpcFaction loadFromJson(JsonObject json)
+	public RewardNpcFaction loadFromNBT(NBTTagCompound json)
 	{
 		RewardNpcFaction task = createNew();
-		task.readFromJson(json, EnumSaveType.CONFIG);
+		task.readFromNBT(json, EnumSaveType.CONFIG);
 		return task;
 	}
 }

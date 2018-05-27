@@ -1,22 +1,25 @@
 package bq_npc_integration.client.gui.tasks;
 
+import betterquesting.api2.utils.QuestTranslation;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
-import noppes.npcs.controllers.Faction;
-import noppes.npcs.controllers.FactionController;
-import noppes.npcs.controllers.PlayerData;
-import noppes.npcs.controllers.PlayerDataController;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.text.TextFormatting;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
+import bq_npc_integration.storage.NpcFactionDB;
 import bq_npc_integration.tasks.TaskNpcFaction;
+import noppes.npcs.controllers.data.Faction;
 
 public class GuiTaskNpcFaction extends GuiElement implements IGuiEmbedded
 {
 	private final TaskNpcFaction task;
 	private final Minecraft mc;
 	
-	private int posX = 0;
-	private int posY = 0;
+	private final int posX;
+	private final int posY;
+	private final int sizeX;
+	private final int sizeY;
 	
 	public GuiTaskNpcFaction(TaskNpcFaction task, int posX, int posY, int sizeX, int sizeY)
 	{
@@ -25,27 +28,41 @@ public class GuiTaskNpcFaction extends GuiElement implements IGuiEmbedded
 		
 		this.posX = posX;
 		this.posY = posY;
+		this.sizeX = sizeX;
+		this.sizeY = sizeY;
 	}
 
 	@Override
 	public void drawBackground(int mx, int my, float partialTick)
 	{
-		Faction fact = FactionController.getInstance().getFaction(task.factionID);
-		String factName = fact != null? I18n.format("bq_npc_integration.gui.faction_name", fact.name) : "?";
-		int points = -1;
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(posX + sizeX/2, posY + sizeY/2, 0F);
+		GlStateManager.scale(2F, 2F, 1F);
 		
-		PlayerData pData = PlayerDataController.instance.getDataFromUsername(mc.thePlayer.getServer(), mc.thePlayer.getGameProfile().getName());
+		Faction fact = NpcFactionDB.INSTANCE.getFaction(task.factionID);
+		String factName = TextFormatting.BOLD + (fact != null? fact.getName() : "?");
+		int points = task.getUsersProgress(QuestingAPI.getQuestingUUID(mc.player));
 		
-		if(pData == null || !pData.factionData.factionData.containsKey(task.factionID))
+		String factPrefix = TextFormatting.BOLD + QuestTranslation.translate("bq_npc_integration.gui.faction_name", "");
+		int tw0 = mc.fontRenderer.getStringWidth(factPrefix);
+		int tw1 = mc.fontRenderer.getStringWidth(factName);
+		mc.fontRenderer.drawString(factName, -tw1/2, -12, getTextColor(), false);
+		mc.fontRenderer.drawString(factPrefix, -tw0/2, -24, getTextColor(), false);
+		
+		String txt = TextFormatting.BOLD.toString() + points + " " + TextFormatting.RESET.toString() + task.operation.GetText() + " " + task.target;
+		
+		if(task.operation.checkValues(points, task.target))
 		{
-			points = -1;
+			txt = TextFormatting.GREEN + txt;
 		} else
 		{
-			points = pData.factionData.getFactionPoints(task.factionID);
+			txt = TextFormatting.RED + txt;
 		}
 		
-		mc.fontRendererObj.drawString(factName, posX, posY, getTextColor(), false);
-		mc.fontRendererObj.drawString(points + " " + task.operation.GetText() + " " + task.target, posX, posY + 12, getTextColor(), false);
+		int tw2 = mc.fontRenderer.getStringWidth(txt);
+		mc.fontRenderer.drawString(txt, -tw2/2, 1, getTextColor(), false);
+		
+		GlStateManager.popMatrix();
 	}
 
 	@Override

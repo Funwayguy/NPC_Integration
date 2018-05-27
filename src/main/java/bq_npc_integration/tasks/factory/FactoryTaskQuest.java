@@ -1,11 +1,11 @@
 package bq_npc_integration.tasks.factory;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.misc.IFactory;
 import bq_npc_integration.core.BQ_NPCs;
 import bq_npc_integration.tasks.TaskNpcQuest;
-import com.google.gson.JsonObject;
 
 public class FactoryTaskQuest implements IFactory<TaskNpcQuest>
 {
@@ -30,10 +30,10 @@ public class FactoryTaskQuest implements IFactory<TaskNpcQuest>
 	}
 
 	@Override
-	public TaskNpcQuest loadFromJson(JsonObject json)
+	public TaskNpcQuest loadFromNBT(NBTTagCompound json)
 	{
 		TaskNpcQuest task = createNew();
-		task.readFromJson(json, EnumSaveType.CONFIG);
+		task.readFromNBT(json, EnumSaveType.CONFIG);
 		return task;
 	}
 }

@@ -4,17 +4,17 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.network.IPacketHandler;
-import bq_npc_integration.storage.NpcQuestDB;
+import bq_npc_integration.storage.NpcDialogDB;
 
-public class PktHandlerNpcQuests implements IPacketHandler
+public class PktHandlerNpcDialogs implements IPacketHandler
 {
 	private final ResourceLocation ID;
 	
-	public PktHandlerNpcQuests()
+	public PktHandlerNpcDialogs()
 	{
-		this.ID = NpcPacketType.SYNC_QUESTS.GetLocation();
+		this.ID = NpcPacketType.SYNC_DIALOG.GetLocation();
 	}
-
+	
 	@Override
 	public ResourceLocation getRegistryName()
 	{
@@ -24,11 +24,12 @@ public class PktHandlerNpcQuests implements IPacketHandler
 	@Override
 	public void handleClient(NBTTagCompound data)
 	{
-		NpcQuestDB.INSTANCE.readFromNBT(data);
+		NpcDialogDB.INSTANCE.readFromNBT(data);
 	}
 	
 	@Override
 	public void handleServer(NBTTagCompound data, EntityPlayerMP sender)
 	{
 	}
+	
 }

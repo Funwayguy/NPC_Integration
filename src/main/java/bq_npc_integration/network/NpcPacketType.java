@@ -6,7 +6,8 @@ import bq_npc_integration.core.BQ_NPCs;
 public enum NpcPacketType
 {
 	SYNC_QUESTS,
-	SYNC_DIALOG;
+	SYNC_DIALOG,
+	SYNC_FACTIONS;
 	
 	private final ResourceLocation ID;
 	

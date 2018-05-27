@@ -1,15 +1,15 @@
 package bq_npc_integration.client.gui.tasks;
 
+import betterquesting.api2.utils.QuestTranslation;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
-import noppes.npcs.controllers.Quest;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.client.gui.lists.GuiScrollingText;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
-import bq_npc_integration.NpcQuestDB;
+import bq_npc_integration.storage.NpcQuestDB;
 import bq_npc_integration.tasks.TaskNpcQuest;
+import noppes.npcs.controllers.data.Quest;
 
 public class GuiTaskNpcQuest extends GuiElement implements IGuiEmbedded
 {
@@ -30,16 +30,16 @@ public class GuiTaskNpcQuest extends GuiElement implements IGuiEmbedded
 		this.posX = posX;
 		this.posY = posY;
 		
-		this.npcQuest = NpcQuestDB.npcQuests.get(task.npcQuestID);
+		this.npcQuest = NpcQuestDB.INSTANCE.getQuest(task.npcQuestID);
 		this.textScroll = new GuiScrollingText(mc, posX, posY + 24, sizeX, sizeY - 24, npcQuest == null? "" : npcQuest.logText);
 	}
 
 	@Override
 	public void drawBackground(int mx, int my, float partialTick)
 	{
-		mc.fontRendererObj.drawString(I18n.format("bq_npc_integration.gui.quest", npcQuest == null? "?" : npcQuest.title), posX, posY, getTextColor());
-		String txt = task.isComplete(QuestingAPI.getQuestingUUID(mc.thePlayer))? (TextFormatting.GREEN + I18n.format("betterquesting.tooltip.complete")) : (TextFormatting.RED + I18n.format("betterquesting.tooltip.incomplete"));
-		mc.fontRendererObj.drawString(I18n.format("bq_npc_integration.gui.status", txt), posX, posY + 10, getTextColor());
+		mc.fontRenderer.drawString(QuestTranslation.translate("bq_npc_integration.gui.quest", npcQuest == null? "?" : npcQuest.title), posX, posY, getTextColor());
+		String txt = task.isComplete(QuestingAPI.getQuestingUUID(mc.player))? (TextFormatting.GREEN + QuestTranslation.translate("betterquesting.tooltip.complete")) : (TextFormatting.RED + QuestTranslation.translate("betterquesting.tooltip.incomplete"));
+		mc.fontRenderer.drawString(QuestTranslation.translate("bq_npc_integration.gui.status", txt), posX, posY + 10, getTextColor());
 		textScroll.drawBackground(mx, my, partialTick);
 	}
 

@@ -1,13 +1,13 @@
 package bq_npc_integration.rewards.factory;
 
+import bq_npc_integration.rewards.RewardNpcMail;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.misc.IFactory;
 import bq_npc_integration.core.BQ_NPCs;
-import bq_npc_integration.rewards.RewardNpcFaction;
-import com.google.gson.JsonObject;
 
-public class FactoryRewardMail implements IFactory<RewardNpcFaction>
+public class FactoryRewardMail implements IFactory<RewardNpcMail>
 {
 	public static final FactoryRewardMail INSTANCE = new FactoryRewardMail();
 	
@@ -24,16 +24,16 @@ public class FactoryRewardMail implements IFactory<RewardNpcFaction>
 	}
 
 	@Override
-	public RewardNpcFaction createNew()
+	public RewardNpcMail createNew()
 	{
-		return new RewardNpcFaction();
+		return new RewardNpcMail();
 	}
 
 	@Override
-	public RewardNpcFaction loadFromJson(JsonObject json)
+	public RewardNpcMail loadFromNBT(NBTTagCompound json)
 	{
-		RewardNpcFaction task = createNew();
-		task.readFromJson(json, EnumSaveType.CONFIG);
+		RewardNpcMail task = createNew();
+		task.readFromNBT(json, EnumSaveType.CONFIG);
 		return task;
 	}
 }
