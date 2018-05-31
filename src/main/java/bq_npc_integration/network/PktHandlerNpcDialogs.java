@@ -24,12 +24,11 @@ public class PktHandlerNpcDialogs implements IPacketHandler
 	@Override
 	public void handleClient(NBTTagCompound data)
 	{
-		NpcDialogDB.INSTANCE.readFromNBT(data);
+		NpcDialogDB.INSTANCE.readPacket(data);
 	}
 	
 	@Override
 	public void handleServer(NBTTagCompound data, EntityPlayerMP sender)
 	{
 	}
-	
 }

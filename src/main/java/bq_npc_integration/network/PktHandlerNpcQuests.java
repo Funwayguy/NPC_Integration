@@ -24,7 +24,7 @@ public class PktHandlerNpcQuests implements IPacketHandler
 	@Override
 	public void handleClient(NBTTagCompound data)
 	{
-		NpcQuestDB.INSTANCE.readFromNBT(data);
+		NpcQuestDB.INSTANCE.readPacket(data);
 	}
 	
 	@Override

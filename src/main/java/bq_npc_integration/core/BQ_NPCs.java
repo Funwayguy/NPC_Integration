@@ -17,11 +17,11 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import org.apache.logging.log4j.Logger;
 import bq_npc_integration.core.proxies.CommonProxy;
 
-@Mod(modid = BQ_NPCs.MODID, name = BQ_NPCs.NAME)
+@Mod(modid = BQ_NPCs.MODID, version = BQ_NPCs.VERSION)
 public class BQ_NPCs
 {
     public static final String MODID = "bq_npc_integration";
-    public static final String NAME = "NPC Integration";
+    public static final String VERSION = "@VERSION@";
     public static final String PROXY = "bq_npc_integration.core.proxies";
     public static final String CHANNEL = "BQ_NPC_INT";
 	

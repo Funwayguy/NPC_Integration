@@ -24,12 +24,11 @@ public class PktHandlerNpcFactions implements IPacketHandler
 	@Override
 	public void handleClient(NBTTagCompound data)
 	{
-		NpcFactionDB.INSTANCE.readFromNBT(data);
+		NpcFactionDB.INSTANCE.readPacket(data);
 	}
 	
 	@Override
 	public void handleServer(NBTTagCompound data, EntityPlayerMP sender)
 	{
 	}
-	
 }

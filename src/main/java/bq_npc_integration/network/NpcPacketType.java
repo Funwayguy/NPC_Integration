@@ -11,7 +11,7 @@ public enum NpcPacketType
 	
 	private final ResourceLocation ID;
 	
-	private NpcPacketType()
+	NpcPacketType()
 	{
 		this.ID = new ResourceLocation(BQ_NPCs.MODID, this.toString().toLowerCase());
 	}

@@ -16,11 +16,11 @@ public class GuiTaskNpcQuest extends GuiElement implements IGuiEmbedded
 	private final TaskNpcQuest task;
 	private final Minecraft mc;
 	
-	private int posX = 0;
-	private int posY = 0;
+	private final int posX;
+	private final int posY;
 	
-	private Quest npcQuest;
-	private GuiScrollingText textScroll;
+	private final Quest npcQuest;
+	private final GuiScrollingText textScroll;
 	
 	public GuiTaskNpcQuest(TaskNpcQuest task, int posX, int posY, int sizeX, int sizeY)
 	{
@@ -30,7 +30,7 @@ public class GuiTaskNpcQuest extends GuiElement implements IGuiEmbedded
 		this.posX = posX;
 		this.posY = posY;
 		
-		this.npcQuest = NpcQuestDB.INSTANCE.getQuest(task.npcQuestID);
+		this.npcQuest = NpcQuestDB.INSTANCE.getValue(task.npcQuestID);
 		this.textScroll = new GuiScrollingText(mc, posX, posY + 24, sizeX, sizeY - 24, npcQuest == null? "" : npcQuest.logText);
 	}
 

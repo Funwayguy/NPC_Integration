@@ -1,86 +1,63 @@
 package bq_npc_integration.storage;
 
-import java.util.HashMap;
-import net.minecraft.entity.player.EntityPlayerMP;
+import java.util.Map.Entry;
+import betterquesting.api.misc.IDataSync;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.SimpleDatabase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.controllers.FactionController;
-import betterquesting.api.api.ApiReference;
-import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.network.QuestingPacket;
 import bq_npc_integration.network.NpcPacketType;
 import noppes.npcs.controllers.data.Faction;
 
-public class NpcFactionDB
+public class NpcFactionDB extends SimpleDatabase<Faction> implements IDataSync
 {
 	public static final NpcFactionDB INSTANCE = new NpcFactionDB();
-	
-	private final HashMap<Integer, Faction> npcFactions = new HashMap<Integer, Faction>();
-	
-	private NpcFactionDB()
-	{
-	}
-	
-	public Faction getFaction(int id)
-	{
-		return this.npcFactions.get(id);
-	}
-	
-	public void reset()
-	{
-		this.npcFactions.clear();
-	}
 	
 	public void loadDatabase()
 	{
 		this.reset();
 		
-		npcFactions.putAll(FactionController.instance.factions);
-	}
-	
-	public void UpdateCients()
-	{
-		NBTTagCompound tags = new NBTTagCompound();
-		writeToNBT(tags);
-		QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToAll(new QuestingPacket(NpcPacketType.SYNC_FACTIONS.GetLocation(), tags));
-	}
-	
-	public void SendDatabase(EntityPlayerMP player)
-	{
-		NBTTagCompound tags = new NBTTagCompound();
-		writeToNBT(tags);
-		QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToPlayer(new QuestingPacket(NpcPacketType.SYNC_FACTIONS.GetLocation(), tags), player);
-	}
-	
-	public void readFromNBT(NBTTagCompound tags)
-	{
-		this.reset();
-		NBTTagList list = tags.getTagList("npcFactions", 10);
-		for(int i = 0; i < list.tagCount(); i++)
+		for(Entry<Integer, Faction> entry : FactionController.instance.factions.entrySet())
 		{
-			Faction f = new Faction();
-			f.readNBT(list.getCompoundTagAt(i));
-			npcFactions.put(f.id, f);
+			add(entry.getKey(), entry.getValue());
 		}
 	}
 	
-	public NBTTagCompound writeToNBT(NBTTagCompound tags)
+	public void readPacket(NBTTagCompound tag)
+	{
+		readFromNBT(tag.getTagList("npcFactions", 10));
+	}
+	
+	@Override
+	public QuestingPacket getSyncPacket()
+	{
+		NBTTagCompound tags = new NBTTagCompound();
+		tags.setTag("npcFactions", writeToNBT(new NBTTagList()));
+		return new QuestingPacket(NpcPacketType.SYNC_FACTIONS.GetLocation(), tags);
+	}
+	
+	private void readFromNBT(NBTTagList tags)
+	{
+		this.reset();
+		
+		for(int i = 0; i < tags.tagCount(); i++)
+		{
+			Faction f = new Faction();
+			f.readNBT(tags.getCompoundTagAt(i));
+			add(f.id, f);
+		}
+	}
+	
+	private NBTTagList writeToNBT(NBTTagList tags)
 	{
 		NBTTagList list = new NBTTagList();
 		
-		for(Faction f : npcFactions.values())
+		for(DBEntry<Faction> f : getEntries())
 		{
-			if(f == null)
-			{
-				continue;
-			}
-			
-			NBTTagCompound fTag = new NBTTagCompound();
-			f.writeNBT(fTag);
-			list.appendTag(fTag);
+			list.appendTag(f.getValue().writeNBT(new NBTTagCompound()));
 		}
-		
-		tags.setTag("npcFactions", list);
 		
 		return tags;
 	}

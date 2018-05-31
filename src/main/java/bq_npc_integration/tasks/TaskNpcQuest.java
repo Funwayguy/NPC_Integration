@@ -94,7 +94,7 @@ public class TaskNpcQuest implements ITask, ITickableTask
 		if(PlayerQuestController.isQuestFinished(player, npcQuestID))
 		{
 			setComplete(QuestingAPI.getQuestingUUID(player));
-			NpcQuestDB.INSTANCE.UpdateClients();
+			QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToAll(NpcQuestDB.INSTANCE.getSyncPacket());
 		}
 	}
 	

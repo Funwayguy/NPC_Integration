@@ -39,7 +39,7 @@ public class GuiTaskNpcFaction extends GuiElement implements IGuiEmbedded
 		GlStateManager.translate(posX + sizeX/2, posY + sizeY/2, 0F);
 		GlStateManager.scale(2F, 2F, 1F);
 		
-		Faction fact = NpcFactionDB.INSTANCE.getFaction(task.factionID);
+		Faction fact = NpcFactionDB.INSTANCE.getValue(task.factionID);
 		String factName = TextFormatting.BOLD + (fact != null? fact.getName() : "?");
 		int points = task.getUsersProgress(QuestingAPI.getQuestingUUID(mc.player));
 		

@@ -15,10 +15,10 @@ public class GuiRewardNpcFaction extends GuiElement implements IGuiEmbedded
 	private final RewardNpcFaction reward;
 	private final Minecraft mc;
 	
-	private int posX = 0;
-	private int posY = 0;
-	private int sizeX = 0;
-	private int sizeY = 0;
+	private final int posX;
+	private final int posY;
+	private final int sizeX;
+	private final int sizeY;
 	
 	public GuiRewardNpcFaction(RewardNpcFaction reward, int posX, int posY, int sizeX, int sizeY)
 	{
@@ -34,7 +34,7 @@ public class GuiRewardNpcFaction extends GuiElement implements IGuiEmbedded
 	@Override
 	public void drawBackground(int mx, int my, float partialTick)
 	{
-		Faction fact = NpcFactionDB.INSTANCE.getFaction(reward.factionID);
+		Faction fact = NpcFactionDB.INSTANCE.getValue(reward.factionID);
 		String factName = fact != null? I18n.format("bq_npc_integration.gui.faction_name", fact.name) : "?";
 		String txt2 = "" + TextFormatting.BOLD;
 		

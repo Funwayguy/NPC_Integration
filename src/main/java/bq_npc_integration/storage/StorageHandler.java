@@ -1,5 +1,7 @@
 package bq_npc_integration.storage;
 
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -43,9 +45,9 @@ public class StorageHandler
 		
 		EntityPlayerMP player = (EntityPlayerMP)event.player;
 		
-		NpcQuestDB.INSTANCE.SendDatabase(player);
-		NpcDialogDB.INSTANCE.SendDatabase(player);
-		NpcFactionDB.INSTANCE.SendDatabase(player);
+		QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToPlayer(NpcQuestDB.INSTANCE.getSyncPacket(), player);
+		QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToPlayer(NpcDialogDB.INSTANCE.getSyncPacket(), player);
+		QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToPlayer(NpcFactionDB.INSTANCE.getSyncPacket(), player);
 	}
 	
 	public static void reloadDatabases()
@@ -54,8 +56,8 @@ public class StorageHandler
 		NpcDialogDB.INSTANCE.loadDatabase();
 		NpcFactionDB.INSTANCE.loadDatabase();
 		
-		NpcQuestDB.INSTANCE.UpdateClients();
-		NpcDialogDB.INSTANCE.UpdateCients();
-		NpcFactionDB.INSTANCE.UpdateCients();
+		QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToAll(NpcQuestDB.INSTANCE.getSyncPacket());
+		QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToAll(NpcDialogDB.INSTANCE.getSyncPacket());
+		QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToAll(NpcFactionDB.INSTANCE.getSyncPacket());
 	}
 }

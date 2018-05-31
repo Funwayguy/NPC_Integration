@@ -18,8 +18,8 @@ public class GuiTaskNpcDialog extends GuiElement implements IGuiEmbedded
 	private final int posX;
 	private final int posY;
 	
-	private Dialog dialog;
-	private GuiScrollingText desc;
+	private final Dialog dialog;
+	private final GuiScrollingText desc;
 	
 	public GuiTaskNpcDialog(TaskNpcDialog task, int posX, int posY, int sizeX, int sizeY)
 	{
@@ -31,7 +31,7 @@ public class GuiTaskNpcDialog extends GuiElement implements IGuiEmbedded
 		
 		this.desc = new GuiScrollingText(mc, posX, posY +24, sizeX, sizeY - 24, task.desc);
 		
-		this.dialog = NpcDialogDB.INSTANCE.getDialog(task.npcDialogID);
+		this.dialog = NpcDialogDB.INSTANCE.getValue(task.npcDialogID);
 	}
 
 	@Override

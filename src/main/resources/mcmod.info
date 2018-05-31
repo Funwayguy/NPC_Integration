@@ -11,6 +11,8 @@
   "credits": "TheMattaBase, Noppes",
   "logoFile": "title.png",
   "screenshots": [],
+  "useDependencyInformation": true,
+  "requiredMods": ["betterquesting","customnpcs"],
   "dependencies": ["betterquesting","customnpcs"]
 }
 ]
