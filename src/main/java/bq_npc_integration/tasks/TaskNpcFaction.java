@@ -1,10 +1,15 @@
 package bq_npc_integration.tasks;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.UUID;
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.tasks.IProgression;
+import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.panels.IGuiPanel;
+import bq_npc_integration.client.gui.tasks.PanelTaskFaction;
+import bq_npc_integration.core.BQ_NPCs;
+import bq_npc_integration.tasks.factory.FactoryTaskFaction;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTBase;
@@ -15,21 +20,14 @@ import net.minecraft.util.ResourceLocation;
 import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.data.PlayerData;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.api.ApiReference;
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.client.gui.misc.IGuiEmbedded;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.jdoc.IJsonDoc;
-import betterquesting.api.properties.NativeProps;
-import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.tasks.IProgression;
-import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.questing.tasks.ITickableTask;
-import bq_npc_integration.client.gui.tasks.GuiTaskNpcFaction;
-import bq_npc_integration.core.BQ_NPCs;
-import bq_npc_integration.tasks.factory.FactoryTaskFaction;
 
-public class TaskNpcFaction implements ITask, ITickableTask, IProgression<Integer>
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.UUID;
+
+public class TaskNpcFaction implements ITaskTickable, IProgression<Integer>
 {
 	private final List<UUID> completeUsers = new ArrayList<>();
 	private final HashMap<UUID, Integer> userProgress = new HashMap<>();
@@ -80,9 +78,9 @@ public class TaskNpcFaction implements ITask, ITickableTask, IProgression<Intege
 	}
 	
 	@Override
-	public void updateTask(EntityPlayer player, IQuest quest)
+	public void tickTask(IQuest quest, EntityPlayer player)
 	{
-		if(player.ticksExisted%60 != 0 || QuestingAPI.getAPI(ApiReference.SETTINGS).getProperty(NativeProps.EDIT_MODE))
+		if(player.ticksExisted%60 != 0 || QuestingAPI.getAPI(ApiReference.SETTINGS).getProperty(NativeProps.EDIT_MODE) || player.getServer() == null)
 		{
 			return;
 		}
@@ -109,7 +107,7 @@ public class TaskNpcFaction implements ITask, ITickableTask, IProgression<Intege
 	@Override
 	public void detect(EntityPlayer player, IQuest quest)
 	{
-		if(isComplete(QuestingAPI.getQuestingUUID(player)))
+		if(isComplete(QuestingAPI.getQuestingUUID(player)) || player.getServer() == null)
 		{
 			return;
 		}
@@ -132,23 +130,15 @@ public class TaskNpcFaction implements ITask, ITickableTask, IProgression<Intege
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound json)
 	{
-		if(saveType == EnumSaveType.PROGRESS)
-		{
-			readFromNBT_Progress(json);
-			return;
-		} else if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
-		
 		factionID = !json.hasKey("factionID", 99) ? 0 : json.getInteger("factionID");
 		target = !json.hasKey("target", 99) ? 1 : json.getInteger("target");
 		operation = PointOperation.valueOf(!json.hasKey("operation", 8) ? "MORE_OR_EQUAL" : json.getString("operation"));
 	}
 	
-	private void readFromNBT_Progress(NBTTagCompound json)
+	@Override
+    public void readProgressFromNBT(NBTTagCompound json, boolean merge)
 	{
 		completeUsers.clear();
 		NBTTagList cList = json.getTagList("completeUsers", 8);
@@ -197,16 +187,8 @@ public class TaskNpcFaction implements ITask, ITickableTask, IProgression<Intege
 	}
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound json)
 	{
-		if(saveType == EnumSaveType.PROGRESS)
-		{
-			return writeToNBT_Progress(json);
-		} else if(saveType != EnumSaveType.CONFIG)
-		{
-			return json;
-		}
-		
 		json.setInteger("factionID", factionID);
 		json.setInteger("target", target);
 		json.setString("operation", operation.name());
@@ -214,7 +196,8 @@ public class TaskNpcFaction implements ITask, ITickableTask, IProgression<Intege
 		return json;
 	}
 	
-	private NBTTagCompound writeToNBT_Progress(NBTTagCompound json)
+	@Override
+	public NBTTagCompound writeProgressToNBT(NBTTagCompound json, List<UUID> users)
 	{
 		NBTTagList jArray = new NBTTagList();
 		for(UUID uuid : completeUsers)
@@ -237,9 +220,9 @@ public class TaskNpcFaction implements ITask, ITickableTask, IProgression<Intege
 	}
 	
 	@Override
-	public IGuiEmbedded getTaskGui(int posX, int posY, int sizeX, int sizeY, IQuest quest)
+	public IGuiPanel getTaskGui(IGuiRect rect, IQuest quest)
 	{
-		return new GuiTaskNpcFaction(this, posX, posY, sizeX, sizeY);
+		return new PanelTaskFaction(rect, quest, this);
 	}
 	
 	public enum PointOperation
@@ -283,12 +266,6 @@ public class TaskNpcFaction implements ITask, ITickableTask, IProgression<Intege
 			
 			return false;
 		}
-	}
-
-	@Override
-	public IJsonDoc getDocumentation()
-	{
-		return null;
 	}
 
 	@Override

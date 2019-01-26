@@ -1,10 +1,15 @@
 package bq_npc_integration.tasks;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import betterquesting.api.questing.tasks.ITickableTask;
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.panels.IGuiPanel;
+import bq_npc_integration.client.gui.tasks.PanelTaskQuest;
+import bq_npc_integration.core.BQ_NPCs;
+import bq_npc_integration.storage.NpcQuestDB;
+import bq_npc_integration.tasks.factory.FactoryTaskQuest;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTBase;
@@ -14,20 +19,12 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.controllers.PlayerQuestController;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.api.ApiReference;
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.client.gui.misc.IGuiEmbedded;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.jdoc.IJsonDoc;
-import betterquesting.api.properties.NativeProps;
-import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.tasks.ITask;
-import bq_npc_integration.client.gui.tasks.GuiTaskNpcQuest;
-import bq_npc_integration.core.BQ_NPCs;
-import bq_npc_integration.storage.NpcQuestDB;
-import bq_npc_integration.tasks.factory.FactoryTaskQuest;
 
-public class TaskNpcQuest implements ITask, ITickableTask
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+public class TaskNpcQuest implements ITaskTickable
 {
 	private final List<UUID> completeUsers = new ArrayList<>();
 	
@@ -73,7 +70,7 @@ public class TaskNpcQuest implements ITask, ITickableTask
 	}
 	
 	@Override
-	public void updateTask(EntityPlayer player, IQuest quest)
+	public void tickTask(IQuest quest, EntityPlayer player)
 	{
 		if(player.ticksExisted%60 != 0 || QuestingAPI.getAPI(ApiReference.SETTINGS).getProperty(NativeProps.EDIT_MODE))
 		{
@@ -99,28 +96,21 @@ public class TaskNpcQuest implements ITask, ITickableTask
 	}
 	
 	@Override
-	public IGuiEmbedded getTaskGui(int posX, int posY, int sizeX, int sizeY, IQuest quest)
+	public IGuiPanel getTaskGui(IGuiRect rect, IQuest quest)
 	{
-		return new GuiTaskNpcQuest(this, posX, posY, sizeX, sizeY);
+		return new PanelTaskQuest(rect, quest, this);
 	}
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound json)
 	{
-		if(saveType == EnumSaveType.PROGRESS)
-		{
-			return writeToNBT_Progress(json);
-		} else if(saveType != EnumSaveType.CONFIG)
-		{
-			return json;
-		}
-		
 		json.setInteger("npcQuestID", npcQuestID);
 		
 		return json;
 	}
 	
-	private NBTTagCompound writeToNBT_Progress(NBTTagCompound json)
+	@Override
+	public NBTTagCompound writeProgressToNBT(NBTTagCompound json, List<UUID> users)
 	{
 		NBTTagList jArray = new NBTTagList();
 		for(UUID uuid : completeUsers)
@@ -133,21 +123,13 @@ public class TaskNpcQuest implements ITask, ITickableTask
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound json)
 	{
-		if(saveType == EnumSaveType.PROGRESS)
-		{
-			readFromNBT_Progress(json);
-			return;
-		} else if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
-		
 		npcQuestID = !json.hasKey("npcQuestID", 99) ? -1 : json.getInteger("npcQuestID");
 	}
 	
-	private void readFromNBT_Progress(NBTTagCompound json)
+	@Override
+	public void readProgressFromNBT(NBTTagCompound json, boolean merge)
 	{
 		completeUsers.clear();
 		NBTTagList cList = json.getTagList("completeUsers", 8);
@@ -168,12 +150,6 @@ public class TaskNpcQuest implements ITask, ITickableTask
 				BQ_NPCs.logger.log(Level.ERROR, "Unable to load UUID for task", e);
 			}
 		}
-	}
-
-	@Override
-	public IJsonDoc getDocumentation()
-	{
-		return null;
 	}
 
 	@Override

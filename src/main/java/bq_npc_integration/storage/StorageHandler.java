@@ -3,22 +3,17 @@ package bq_npc_integration.storage;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
 public class StorageHandler
 {
-	private static boolean loaded = false;
+    public static final StorageHandler INSTANCE = new StorageHandler();
+    
+	private boolean loaded = false;
 	
-	@SubscribeEvent
-	public void onWorldUnload(WorldEvent.Unload event)
+	public void unloadDatabases()
 	{
-		if(!loaded || event.getWorld().isRemote || event.getWorld().getMinecraftServer().isServerRunning())
-		{
-			return;
-		}
-		
 		NpcQuestDB.INSTANCE.reset();
 		NpcDialogDB.INSTANCE.reset();
 		NpcFactionDB.INSTANCE.reset();
@@ -29,10 +24,7 @@ public class StorageHandler
 	@SubscribeEvent
 	public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event)
 	{
-		if(event.player.world.isRemote || !(event.player instanceof EntityPlayerMP))
-		{
-			return;
-		}
+		if(event.player.world.isRemote || !(event.player instanceof EntityPlayerMP)) return;
 		
 		if(!loaded)
 		{

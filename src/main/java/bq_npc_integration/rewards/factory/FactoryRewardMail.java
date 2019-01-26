@@ -1,11 +1,10 @@
 package bq_npc_integration.rewards.factory;
 
+import betterquesting.api.misc.IFactory;
+import bq_npc_integration.core.BQ_NPCs;
 import bq_npc_integration.rewards.RewardNpcMail;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.misc.IFactory;
-import bq_npc_integration.core.BQ_NPCs;
 
 public class FactoryRewardMail implements IFactory<RewardNpcMail>
 {
@@ -33,7 +32,7 @@ public class FactoryRewardMail implements IFactory<RewardNpcMail>
 	public RewardNpcMail loadFromNBT(NBTTagCompound json)
 	{
 		RewardNpcMail task = createNew();
-		task.readFromNBT(json, EnumSaveType.CONFIG);
+		task.readFromNBT(json);
 		return task;
 	}
 }

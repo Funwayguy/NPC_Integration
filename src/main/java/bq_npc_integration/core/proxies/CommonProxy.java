@@ -22,7 +22,7 @@ public class CommonProxy
 	
 	public void registerHandlers()
 	{
-		MinecraftForge.EVENT_BUS.register(new StorageHandler());
+		MinecraftForge.EVENT_BUS.register(StorageHandler.INSTANCE);
 	}
 
 	public void registerExpansion()
