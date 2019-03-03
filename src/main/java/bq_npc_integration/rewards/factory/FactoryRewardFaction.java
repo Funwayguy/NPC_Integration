@@ -1,12 +1,13 @@
 package bq_npc_integration.rewards.factory;
 
-import betterquesting.api.misc.IFactory;
+import betterquesting.api.questing.rewards.IReward;
+import betterquesting.api2.registry.IFactoryData;
 import bq_npc_integration.core.BQ_NPCs;
 import bq_npc_integration.rewards.RewardNpcFaction;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
-public class FactoryRewardFaction implements IFactory<RewardNpcFaction>
+public class FactoryRewardFaction implements IFactoryData<IReward,NBTTagCompound>
 {
 	public static final FactoryRewardFaction INSTANCE = new FactoryRewardFaction();
 	
@@ -29,7 +30,7 @@ public class FactoryRewardFaction implements IFactory<RewardNpcFaction>
 	}
 
 	@Override
-	public RewardNpcFaction loadFromNBT(NBTTagCompound json)
+	public RewardNpcFaction loadFromData(NBTTagCompound json)
 	{
 		RewardNpcFaction task = createNew();
 		task.readFromNBT(json);

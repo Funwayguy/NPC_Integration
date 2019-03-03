@@ -32,6 +32,7 @@ public class StorageHandler
 			NpcDialogDB.INSTANCE.loadDatabase();
 			NpcFactionDB.INSTANCE.loadDatabase();
 			
+			System.out.println("Loaded quest DB");
 			loaded = true;
 		}
 		

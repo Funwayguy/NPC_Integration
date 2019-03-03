@@ -57,7 +57,7 @@ public class RewardNpcMail implements IReward
 		mail = new PlayerMail();
 		mail.readNBT(json);
 		
-		if(mail.message.hasNoTags())
+		if(mail.message.isEmpty())
 		{
 			NBTTagList pages = new NBTTagList();
 			pages.appendTag(new NBTTagString("404: Reward could not be found!"));

@@ -1,12 +1,13 @@
 package bq_npc_integration.rewards.factory;
 
-import betterquesting.api.misc.IFactory;
+import betterquesting.api.questing.rewards.IReward;
+import betterquesting.api2.registry.IFactoryData;
 import bq_npc_integration.core.BQ_NPCs;
 import bq_npc_integration.rewards.RewardNpcMail;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
-public class FactoryRewardMail implements IFactory<RewardNpcMail>
+public class FactoryRewardMail implements IFactoryData<IReward,NBTTagCompound>
 {
 	public static final FactoryRewardMail INSTANCE = new FactoryRewardMail();
 	
@@ -29,7 +30,7 @@ public class FactoryRewardMail implements IFactory<RewardNpcMail>
 	}
 
 	@Override
-	public RewardNpcMail loadFromNBT(NBTTagCompound json)
+	public RewardNpcMail loadFromData(NBTTagCompound json)
 	{
 		RewardNpcMail task = createNew();
 		task.readFromNBT(json);

@@ -1,12 +1,13 @@
 package bq_npc_integration.tasks.factory;
 
-import betterquesting.api.misc.IFactory;
+import betterquesting.api.questing.tasks.ITask;
+import betterquesting.api2.registry.IFactoryData;
 import bq_npc_integration.core.BQ_NPCs;
 import bq_npc_integration.tasks.TaskNpcDialog;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
-public class FactoryTaskDialog implements IFactory<TaskNpcDialog>
+public class FactoryTaskDialog implements IFactoryData<ITask, NBTTagCompound>
 {
 	public static final FactoryTaskDialog INSTANCE = new FactoryTaskDialog();
 	
@@ -29,7 +30,7 @@ public class FactoryTaskDialog implements IFactory<TaskNpcDialog>
 	}
 
 	@Override
-	public TaskNpcDialog loadFromNBT(NBTTagCompound json)
+	public TaskNpcDialog loadFromData(NBTTagCompound json)
 	{
 		TaskNpcDialog task = createNew();
 		task.readFromNBT(json);

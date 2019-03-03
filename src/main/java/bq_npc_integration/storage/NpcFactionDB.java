@@ -1,15 +1,16 @@
 package bq_npc_integration.storage;
 
-import java.util.Map.Entry;
 import betterquesting.api.misc.IDataSync;
+import betterquesting.api.network.QuestingPacket;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
+import bq_npc_integration.network.NpcPacketType;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.controllers.FactionController;
-import betterquesting.api.network.QuestingPacket;
-import bq_npc_integration.network.NpcPacketType;
 import noppes.npcs.controllers.data.Faction;
+
+import java.util.Map.Entry;
 
 public class NpcFactionDB extends SimpleDatabase<Faction> implements IDataSync
 {
@@ -19,6 +20,8 @@ public class NpcFactionDB extends SimpleDatabase<Faction> implements IDataSync
 	{
 		this.reset();
 		
+		System.out.println("Loading " + FactionController.instance.factions.size() + " factions...");
+		
 		for(Entry<Integer, Faction> entry : FactionController.instance.factions.entrySet())
 		{
 			add(entry.getKey(), entry.getValue());
@@ -27,6 +30,7 @@ public class NpcFactionDB extends SimpleDatabase<Faction> implements IDataSync
 	
 	public void readPacket(NBTTagCompound tag)
 	{
+	    System.out.println("Reading faction packet: " + tag);
 		readFromNBT(tag.getTagList("npcFactions", 10));
 	}
 	
@@ -52,11 +56,9 @@ public class NpcFactionDB extends SimpleDatabase<Faction> implements IDataSync
 	
 	private NBTTagList writeToNBT(NBTTagList tags)
 	{
-		NBTTagList list = new NBTTagList();
-		
 		for(DBEntry<Faction> f : getEntries())
 		{
-			list.appendTag(f.getValue().writeNBT(new NBTTagCompound()));
+			tags.appendTag(f.getValue().writeNBT(new NBTTagCompound()));
 		}
 		
 		return tags;

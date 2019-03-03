@@ -1,5 +1,11 @@
 package bq_npc_integration.core.proxies;
 
+import betterquesting.api.network.IPacketRegistry;
+import betterquesting.api.questing.rewards.IReward;
+import betterquesting.api.questing.tasks.ITask;
+import betterquesting.api2.registry.IFactoryData;
+import betterquesting.api2.registry.IRegistry;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.MinecraftForge;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
@@ -23,19 +29,23 @@ public class CommonProxy
 	public void registerHandlers()
 	{
 		MinecraftForge.EVENT_BUS.register(StorageHandler.INSTANCE);
+        
+        IPacketRegistry pktReg = QuestingAPI.getAPI(ApiReference.PACKET_REG);
+		pktReg.registerHandler(new PktHandlerNpcQuests());
+		pktReg.registerHandler(new PktHandlerNpcDialogs());
+		pktReg.registerHandler(new PktHandlerNpcFactions());
+        
+        IRegistry<IFactoryData<ITask, NBTTagCompound>, ITask> tskReg = QuestingAPI.getAPI(ApiReference.TASK_REG);
+		tskReg.register(FactoryTaskQuest.INSTANCE);
+		tskReg.register(FactoryTaskDialog.INSTANCE);
+		tskReg.register(FactoryTaskFaction.INSTANCE);
+		
+        IRegistry<IFactoryData<IReward, NBTTagCompound>, IReward> rwdReg = QuestingAPI.getAPI(ApiReference.REWARD_REG);
+		rwdReg.register(FactoryRewardMail.INSTANCE);
+		rwdReg.register(FactoryRewardFaction.INSTANCE);
 	}
 
 	public void registerExpansion()
 	{
-		QuestingAPI.getAPI(ApiReference.PACKET_REG).registerHandler(new PktHandlerNpcQuests());
-		QuestingAPI.getAPI(ApiReference.PACKET_REG).registerHandler(new PktHandlerNpcDialogs());
-		QuestingAPI.getAPI(ApiReference.PACKET_REG).registerHandler(new PktHandlerNpcFactions());
-    	
-		QuestingAPI.getAPI(ApiReference.TASK_REG).registerTask(FactoryTaskQuest.INSTANCE);
-		QuestingAPI.getAPI(ApiReference.TASK_REG).registerTask(FactoryTaskDialog.INSTANCE);
-		QuestingAPI.getAPI(ApiReference.TASK_REG).registerTask(FactoryTaskFaction.INSTANCE);
-		
-		QuestingAPI.getAPI(ApiReference.REWARD_REG).registerReward(FactoryRewardMail.INSTANCE);
-		QuestingAPI.getAPI(ApiReference.REWARD_REG).registerReward(FactoryRewardFaction.INSTANCE);
 	}
 }

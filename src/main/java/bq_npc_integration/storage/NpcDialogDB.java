@@ -1,15 +1,16 @@
 package bq_npc_integration.storage;
 
-import java.util.Map.Entry;
 import betterquesting.api.misc.IDataSync;
+import betterquesting.api.network.QuestingPacket;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
+import bq_npc_integration.network.NpcPacketType;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.controllers.DialogController;
-import betterquesting.api.network.QuestingPacket;
-import bq_npc_integration.network.NpcPacketType;
 import noppes.npcs.controllers.data.Dialog;
+
+import java.util.Map.Entry;
 
 public class NpcDialogDB extends SimpleDatabase<Dialog> implements IDataSync
 {
@@ -53,11 +54,9 @@ public class NpcDialogDB extends SimpleDatabase<Dialog> implements IDataSync
 	
 	private NBTTagList writeToNBT(NBTTagList tags)
 	{
-		NBTTagList list = new NBTTagList();
-		
 		for(DBEntry<Dialog> d : getEntries())
 		{
-			list.appendTag(d.getValue().writeToNBT(new NBTTagCompound()));
+			tags.appendTag(d.getValue().writeToNBT(new NBTTagCompound()));
 		}
 		
 		return tags;
