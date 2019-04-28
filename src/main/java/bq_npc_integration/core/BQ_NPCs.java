@@ -1,25 +1,24 @@
 package bq_npc_integration.core;
 
+import bq_npc_integration.storage.CommandReloadQuests;
+import bq_npc_integration.storage.StorageHandler;
+import net.minecraft.command.ICommandManager;
+import net.minecraft.command.ServerCommandManager;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import org.apache.logging.log4j.Logger;
 import bq_npc_integration.core.proxies.CommonProxy;
 
-@Mod(modid = BQ_NPCs.MODID, version = BQ_NPCs.VERSION, name = BQ_NPCs.NAME)
+@Mod(modid = BQ_NPCs.MODID, version = "@VERSION@")
 public class BQ_NPCs
 {
     public static final String MODID = "bq_npc_integration";
-    public static final String VERSION = "CI_MOD_VERSION";
-    public static final String HASH = "CI_MOD_HASH";
-    public static final String BRANCH = "CI_MOD_BRANCH";
-    public static final String NAME = "NPC Integration";
     public static final String PROXY = "bq_npc_integration.core.proxies";
     public static final String CHANNEL = "BQ_NPC_INT";
 	
@@ -48,5 +47,21 @@ public class BQ_NPCs
     @EventHandler
     public void postInit(FMLPostInitializationEvent event)
     {
+    }
+	
+	@EventHandler
+	public void serverStart(FMLServerStartingEvent event)
+    {
+        MinecraftServer server = event.getServer();
+        ICommandManager command = server.getCommandManager();
+        ServerCommandManager manager = (ServerCommandManager) command;
+        
+        manager.registerCommand(new CommandReloadQuests());
+    }
+    
+    @EventHandler
+    public void serverShutdown(FMLServerStoppedEvent event)
+    {
+        StorageHandler.INSTANCE.unloadDatabases();
     }
 }

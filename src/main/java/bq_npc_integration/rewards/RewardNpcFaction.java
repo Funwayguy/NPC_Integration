@@ -1,20 +1,20 @@
 package bq_npc_integration.rewards;
 
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ResourceLocation;
-import noppes.npcs.controllers.PlayerData;
-import noppes.npcs.controllers.PlayerDataController;
-import betterquesting.api.client.gui.misc.IGuiEmbedded;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.rewards.IReward;
-import betterquesting.api.utils.JsonHelper;
-import bq_npc_integration.client.gui.rewards.GuiRewardNpcFaction;
+import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.panels.IGuiPanel;
+import bq_npc_integration.client.gui.rewards.PanelRewardFaction;
 import bq_npc_integration.core.BQ_NPCs;
 import bq_npc_integration.rewards.factory.FactoryRewardFaction;
-import com.google.gson.JsonObject;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import noppes.npcs.controllers.PlayerData;
+import noppes.npcs.controllers.PlayerDataController;
 
 public class RewardNpcFaction implements IReward
 {
@@ -43,6 +43,8 @@ public class RewardNpcFaction implements IReward
 	@Override
 	public void claimReward(EntityPlayer player, IQuest quest)
 	{
+	    if(player.getServer() == null) return;
+	    
 		PlayerData pData = PlayerDataController.instance.getDataFromUsername(player.getServer(), player.getGameProfile().getName());
 		
 		if(pData == null || !pData.factionData.factionData.containsKey(factionID))
@@ -60,46 +62,32 @@ public class RewardNpcFaction implements IReward
 	}
 	
 	@Override
-	public void readFromJson(JsonObject json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound json)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
-		
-		factionID = JsonHelper.GetNumber(json, "factionID", 0).intValue();
-		value = JsonHelper.GetNumber(json, "value", 1).intValue();
-		relative = JsonHelper.GetBoolean(json, "relative", true);
+		factionID = !json.hasKey("factionID", 99) ? 0 : json.getInteger("factionID");
+		value = !json.hasKey("value", 99) ? 1 : json.getInteger("value");
+		relative = !json.hasKey("relative") || json.getBoolean("relative");
 	}
 	
 	@Override
-	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound json)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return json;
-		}
-		
-		json.addProperty("factionID", factionID);
-		json.addProperty("value", value);
-		json.addProperty("relative", relative);
+		json.setInteger("factionID", factionID);
+		json.setInteger("value", value);
+		json.setBoolean("relative", relative);
 		
 		return json;
 	}
 	
 	@Override
-	public IGuiEmbedded getRewardGui(int posX, int posY, int sizeX, int sizeY, IQuest quest)
+    @SideOnly(Side.CLIENT)
+	public IGuiPanel getRewardGui(IGuiRect rect, IQuest quest)
 	{
-		return new GuiRewardNpcFaction(this, posX, posY, sizeX, sizeY);
+		return new PanelRewardFaction(rect, quest, this);
 	}
 
 	@Override
-	public IJsonDoc getDocumentation()
-	{
-		return null;
-	}
-
-	@Override
+    @SideOnly(Side.CLIENT)
 	public GuiScreen getRewardEditor(GuiScreen parent, IQuest quest)
 	{
 		return null;
