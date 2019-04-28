@@ -1,33 +1,33 @@
 package bq_npc_integration.tasks;
 
-import java.util.ArrayList;
-import java.util.UUID;
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.panels.IGuiPanel;
+import bq_npc_integration.client.gui.tasks.PanelTaskQuest;
+import bq_npc_integration.core.BQ_NPCs;
+import bq_npc_integration.storage.NpcQuestDB;
+import bq_npc_integration.tasks.factory.FactoryTaskQuest;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.controllers.PlayerQuestController;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.api.ApiReference;
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.client.gui.misc.IGuiEmbedded;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.jdoc.IJsonDoc;
-import betterquesting.api.properties.NativeProps;
-import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.utils.JsonHelper;
-import bq_npc_integration.NpcQuestDB;
-import bq_npc_integration.client.gui.tasks.GuiTaskNpcQuest;
-import bq_npc_integration.core.BQ_NPCs;
-import bq_npc_integration.tasks.factory.FactoryTaskQuest;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
-public class TaskNpcQuest implements ITask
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+public class TaskNpcQuest implements ITaskTickable
 {
-	private ArrayList<UUID> completeUsers = new ArrayList<UUID>();
+	private final List<UUID> completeUsers = new ArrayList<>();
 	
 	public int npcQuestID = -1;
 	
@@ -71,7 +71,7 @@ public class TaskNpcQuest implements ITask
 	}
 	
 	@Override
-	public void update(EntityPlayer player, IQuest quest)
+	public void tickTask(IQuest quest, EntityPlayer player)
 	{
 		if(player.ticksExisted%60 != 0 || QuestingAPI.getAPI(ApiReference.SETTINGS).getProperty(NativeProps.EDIT_MODE))
 		{
@@ -92,72 +92,54 @@ public class TaskNpcQuest implements ITask
 		if(PlayerQuestController.isQuestFinished(player, npcQuestID))
 		{
 			setComplete(QuestingAPI.getQuestingUUID(player));
-			NpcQuestDB.UpdateClients();
+			QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToAll(NpcQuestDB.INSTANCE.getSyncPacket());
 		}
 	}
 	
 	@Override
-	public IGuiEmbedded getTaskGui(int posX, int posY, int sizeX, int sizeY, IQuest quest)
+    @SideOnly(Side.CLIENT)
+	public IGuiPanel getTaskGui(IGuiRect rect, IQuest quest)
 	{
-		return new GuiTaskNpcQuest(this, posX, posY, sizeX, sizeY);
+		return new PanelTaskQuest(rect, quest, this);
 	}
 	
 	@Override
-	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound json)
 	{
-		if(saveType == EnumSaveType.PROGRESS)
-		{
-			return writeToJson_Progress(json);
-		} else if(saveType != EnumSaveType.CONFIG)
-		{
-			return json;
-		}
-		
-		json.addProperty("npcQuestID", npcQuestID);
+		json.setInteger("npcQuestID", npcQuestID);
 		
 		return json;
 	}
 	
-	private JsonObject writeToJson_Progress(JsonObject json)
+	@Override
+	public NBTTagCompound writeProgressToNBT(NBTTagCompound json, List<UUID> users)
 	{
-		JsonArray jArray = new JsonArray();
+		NBTTagList jArray = new NBTTagList();
 		for(UUID uuid : completeUsers)
 		{
-			jArray.add(new JsonPrimitive(uuid.toString()));
+			jArray.appendTag(new NBTTagString(uuid.toString()));
 		}
-		json.add("completeUsers", jArray);
+		json.setTag("completeUsers", jArray);
 		
 		return json;
 	}
 	
 	@Override
-	public void readFromJson(JsonObject json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound json)
 	{
-		if(saveType == EnumSaveType.PROGRESS)
-		{
-			readFromJson_Progress(json);
-			return;
-		} else if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
-		
-		npcQuestID = JsonHelper.GetNumber(json, "npcQuestID", -1).intValue();
+		npcQuestID = !json.hasKey("npcQuestID", 99) ? -1 : json.getInteger("npcQuestID");
 	}
 	
-	private void readFromJson_Progress(JsonObject json)
+	@Override
+	public void readProgressFromNBT(NBTTagCompound json, boolean merge)
 	{
-		completeUsers = new ArrayList<UUID>();
-		for(JsonElement entry : JsonHelper.GetArray(json, "completeUsers"))
+		completeUsers.clear();
+		NBTTagList cList = json.getTagList("completeUsers", 8);
+		for(int i = 0; i < cList.tagCount(); i++)
 		{
-			if(entry == null || !entry.isJsonPrimitive())
-			{
-				continue;
-			}
-			
 			try
 			{
-				completeUsers.add(UUID.fromString(entry.getAsString()));
+				completeUsers.add(UUID.fromString(cList.getStringTagAt(i)));
 			} catch(Exception e)
 			{
 				BQ_NPCs.logger.log(Level.ERROR, "Unable to load UUID for task", e);
@@ -166,12 +148,7 @@ public class TaskNpcQuest implements ITask
 	}
 
 	@Override
-	public IJsonDoc getDocumentation()
-	{
-		return null;
-	}
-
-	@Override
+    @SideOnly(Side.CLIENT)
 	public GuiScreen getTaskEditor(GuiScreen parent, IQuest quest)
 	{
 		return null;

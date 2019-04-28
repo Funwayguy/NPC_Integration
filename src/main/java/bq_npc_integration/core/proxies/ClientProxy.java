@@ -1,7 +1,5 @@
 package bq_npc_integration.core.proxies;
 
-
-
 public class ClientProxy extends CommonProxy
 {
 	@Override
