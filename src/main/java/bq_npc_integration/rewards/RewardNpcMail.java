@@ -13,6 +13,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.data.PlayerMail;
 import org.apache.logging.log4j.Level;
@@ -84,12 +86,14 @@ public class RewardNpcMail implements IReward
 	}
 	
 	@Override
+    @SideOnly(Side.CLIENT)
 	public IGuiPanel getRewardGui(IGuiRect rect, IQuest quest)
 	{
 		return new PanelRewardMail(rect, quest, this);
 	}
  
 	@Override
+    @SideOnly(Side.CLIENT)
 	public GuiScreen getRewardEditor(GuiScreen parent, IQuest quest)
 	{
 		return null;

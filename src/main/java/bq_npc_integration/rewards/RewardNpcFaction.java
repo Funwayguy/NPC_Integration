@@ -11,6 +11,8 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.data.PlayerData;
 
@@ -78,12 +80,14 @@ public class RewardNpcFaction implements IReward
 	}
 	
 	@Override
+    @SideOnly(Side.CLIENT)
 	public IGuiPanel getRewardGui(IGuiRect rect, IQuest quest)
 	{
 		return new PanelRewardFaction(rect, quest, this);
 	}
 
 	@Override
+    @SideOnly(Side.CLIENT)
 	public GuiScreen getRewardEditor(GuiScreen parent, IQuest quest)
 	{
 		return null;
