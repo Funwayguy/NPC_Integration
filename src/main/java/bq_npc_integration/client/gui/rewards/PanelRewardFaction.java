@@ -1,6 +1,5 @@
 package bq_npc_integration.client.gui.rewards;
 
-import betterquesting.api.questing.IQuest;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiTransform;
 import betterquesting.api2.client.gui.misc.IGuiRect;
@@ -17,13 +16,11 @@ import org.lwjgl.util.vector.Vector4f;
 public class PanelRewardFaction extends CanvasEmpty
 {
     private final RewardNpcFaction reward;
-    private final IQuest quest;
     
-    public PanelRewardFaction(IGuiRect rect, IQuest quest, RewardNpcFaction reward)
+    public PanelRewardFaction(IGuiRect rect, RewardNpcFaction reward)
     {
         super(rect);
         this.reward = reward;
-        this.quest = quest;
     }
     
     @Override

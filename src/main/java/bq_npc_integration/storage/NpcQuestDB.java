@@ -1,17 +1,15 @@
 package bq_npc_integration.storage;
 
-import java.util.Map.Entry;
-import betterquesting.api.misc.IDataSync;
-import betterquesting.api2.storage.BigDatabase;
 import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.SimpleDatabase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.controllers.QuestController;
-import betterquesting.api.network.QuestingPacket;
-import bq_npc_integration.network.NpcPacketType;
 import noppes.npcs.controllers.data.Quest;
 
-public class NpcQuestDB extends BigDatabase<Quest> implements IDataSync
+import java.util.Map.Entry;
+
+public class NpcQuestDB extends SimpleDatabase<Quest>
 {
 	public static final NpcQuestDB INSTANCE = new NpcQuestDB();
 	
@@ -25,21 +23,7 @@ public class NpcQuestDB extends BigDatabase<Quest> implements IDataSync
 		}
 	}
 	
-	@Override
-	public void readPacket(NBTTagCompound tag)
-	{
-		readFromNBT(tag.getTagList("npcQuests", 10));
-	}
-	
-	@Override
-	public QuestingPacket getSyncPacket()
-	{
-		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("npcQuests", writeToNBT(new NBTTagList()));
-		return new QuestingPacket(NpcPacketType.SYNC_QUESTS.GetLocation(), tags);
-	}
-	
-	private void readFromNBT(NBTTagList tags)
+	public void readFromNBT(NBTTagList tags)
 	{
 		this.reset();
 		for(int i = 0; i < tags.tagCount(); i++)
@@ -50,7 +34,7 @@ public class NpcQuestDB extends BigDatabase<Quest> implements IDataSync
 		}
 	}
 	
-	private NBTTagList writeToNBT(NBTTagList tags)
+	public NBTTagList writeToNBT(NBTTagList tags)
 	{
 		for(DBEntry<Quest> q : getEntries())
 		{

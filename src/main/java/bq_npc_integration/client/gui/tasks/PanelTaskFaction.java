@@ -1,7 +1,6 @@
 package bq_npc_integration.client.gui.tasks;
 
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.questing.IQuest;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiTransform;
 import betterquesting.api2.client.gui.misc.IGuiRect;
@@ -19,13 +18,11 @@ import org.lwjgl.util.vector.Vector4f;
 public class PanelTaskFaction extends CanvasEmpty
 {
     private final TaskNpcFaction task;
-    private final IQuest quest;
     
-    public PanelTaskFaction(IGuiRect rect, IQuest quest, TaskNpcFaction task)
+    public PanelTaskFaction(IGuiRect rect, TaskNpcFaction task)
     {
         super(rect);
         this.task = task;
-        this.quest = quest;
     }
     
     @Override

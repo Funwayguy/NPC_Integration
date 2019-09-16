@@ -6,12 +6,12 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.utils.ParticipantInfo;
 import bq_npc_integration.client.gui.tasks.PanelTaskDialog;
 import bq_npc_integration.core.BQ_NPCs;
 import bq_npc_integration.tasks.factory.FactoryTaskDialog;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
@@ -22,13 +22,12 @@ import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.data.PlayerData;
 import org.apache.logging.log4j.Level;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import javax.annotation.Nullable;
+import java.util.*;
 
 public class TaskNpcDialog implements ITaskTickable
 {
-	private final List<UUID> completeUsers = new ArrayList<>();
+	private final Set<UUID> completeUsers = new TreeSet<>();
 	
 	public int npcDialogID = -1;
 	public String desc = "Talk to an NPC";
@@ -54,53 +53,44 @@ public class TaskNpcDialog implements ITaskTickable
 	@Override
 	public void setComplete(UUID uuid)
 	{
-		if(!completeUsers.contains(uuid))
-		{
-			completeUsers.add(uuid);
-		}
+		completeUsers.add(uuid);
 	}
 
 	@Override
-	public void resetUser(UUID uuid)
+	public void resetUser(@Nullable UUID uuid)
 	{
-		completeUsers.remove(uuid);
-	}
-
-	@Override
-	public void resetAll()
-	{
-		completeUsers.clear();
-	}
-	
-	@Override
-	public void tickTask(IQuest quest, EntityPlayer player)
-	{
-		if(player.ticksExisted%60 != 0 || QuestingAPI.getAPI(ApiReference.SETTINGS).getProperty(NativeProps.EDIT_MODE))
-		{
-			return;
-		}
-		
-		detect(player, quest);
+        if(uuid == null)
+        {
+            completeUsers.clear();
+        } else
+        {
+            completeUsers.remove(uuid);
+        }
 	}
 	
 	@Override
-	public void detect(EntityPlayer player, IQuest quest)
+	public void tickTask(DBEntry<IQuest> quest, ParticipantInfo pInfo)
 	{
-		if(isComplete(QuestingAPI.getQuestingUUID(player)))
+		if(pInfo.PLAYER.ticksExisted%60 != 0 || QuestingAPI.getAPI(ApiReference.SETTINGS).getProperty(NativeProps.EDIT_MODE))
 		{
 			return;
 		}
 		
-		PlayerData pData = PlayerDataController.instance.getDataFromUsername(player.getServer(), player.getGameProfile().getName());
+		detect(pInfo, quest);
+	}
+	
+	@Override
+	public void detect(ParticipantInfo pInfo, DBEntry<IQuest> quest)
+	{
+		if(isComplete(pInfo.UUID) || pInfo.PLAYER.getServer() == null) return;
 		
-		if(pData == null)
-		{
-			return;
-		}
+		PlayerData pData = PlayerDataController.instance.getDataFromUsername(pInfo.PLAYER.getServer(), pInfo.PLAYER.getGameProfile().getName());
+		if(pData == null) return;
 		
 		if(pData.dialogData.dialogsRead.contains(npcDialogID))
 		{
-			setComplete(QuestingAPI.getQuestingUUID(player));
+			setComplete(pInfo.UUID);
+			pInfo.markDirty(Collections.singletonList(quest.getID()));
 		}
 	}
 	
@@ -114,16 +104,23 @@ public class TaskNpcDialog implements ITaskTickable
 	}
 	
 	@Override
-	public NBTTagCompound writeProgressToNBT(NBTTagCompound json, List<UUID> users)
+	public NBTTagCompound writeProgressToNBT(NBTTagCompound nbt, @Nullable List<UUID> users)
 	{
 		NBTTagList jArray = new NBTTagList();
-		for(UUID uuid : completeUsers)
-		{
-			jArray.appendTag(new NBTTagString(uuid.toString()));
-		}
-		json.setTag("completeUsers", jArray);
 		
-		return json;
+		if(users != null)
+        {
+            users.forEach((uuid) -> {
+                if(completeUsers.contains(uuid)) jArray.appendTag(new NBTTagString(uuid.toString()));
+            });
+        } else
+        {
+            completeUsers.forEach((uuid) -> jArray.appendTag(new NBTTagString(uuid.toString())));
+        }
+		
+		nbt.setTag("completeUsers", jArray);
+		
+		return nbt;
 	}
 	
 	@Override
@@ -134,22 +131,15 @@ public class TaskNpcDialog implements ITaskTickable
 	}
 	
 	@Override
-    public void readProgressFromNBT(NBTTagCompound json, boolean merge)
+    public void readProgressFromNBT(NBTTagCompound nbt, boolean merge)
 	{
-		completeUsers.clear();
-		NBTTagList cList = json.getTagList("completeUsers", 8);
+		if(!merge) completeUsers.clear();
+		NBTTagList cList = nbt.getTagList("completeUsers", 8);
 		for(int i = 0; i < cList.tagCount(); i++)
 		{
-			NBTBase entry = cList.get(i);
-			
-			if(entry.getId() != 8)
-			{
-				continue;
-			}
-			
 			try
 			{
-				completeUsers.add(UUID.fromString(((NBTTagString)entry).getString()));
+				completeUsers.add(UUID.fromString(cList.getStringTagAt(i)));
 			} catch(Exception e)
 			{
 				BQ_NPCs.logger.log(Level.ERROR, "Unable to load UUID for task", e);
@@ -159,14 +149,14 @@ public class TaskNpcDialog implements ITaskTickable
 	
 	@Override
     @SideOnly(Side.CLIENT)
-	public IGuiPanel getTaskGui(IGuiRect rect, IQuest quest)
+	public IGuiPanel getTaskGui(IGuiRect rect, DBEntry<IQuest> quest)
 	{
-		return new PanelTaskDialog(rect, quest, this);
+		return new PanelTaskDialog(rect, this);
 	}
 
 	@Override
     @SideOnly(Side.CLIENT)
-	public GuiScreen getTaskEditor(GuiScreen parent, IQuest quest)
+	public GuiScreen getTaskEditor(GuiScreen parent, DBEntry<IQuest> quest)
 	{
 		return null;
 	}

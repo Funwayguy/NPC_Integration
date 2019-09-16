@@ -4,15 +4,14 @@ import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.tasks.IProgression;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.utils.ParticipantInfo;
 import bq_npc_integration.client.gui.tasks.PanelTaskFaction;
 import bq_npc_integration.core.BQ_NPCs;
 import bq_npc_integration.tasks.factory.FactoryTaskFaction;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
@@ -23,15 +22,12 @@ import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.data.PlayerData;
 import org.apache.logging.log4j.Level;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.UUID;
+import javax.annotation.Nullable;
+import java.util.*;
 
-public class TaskNpcFaction implements ITaskTickable, IProgression<Integer>
+public class TaskNpcFaction implements ITaskTickable
 {
-	private final List<UUID> completeUsers = new ArrayList<>();
+	private final Set<UUID> completeUsers = new TreeSet<>();
 	private final HashMap<UUID, Integer> userProgress = new HashMap<>();
 	
 	public int factionID = 0;
@@ -59,75 +55,71 @@ public class TaskNpcFaction implements ITaskTickable, IProgression<Integer>
 	@Override
 	public void setComplete(UUID uuid)
 	{
-		if(!completeUsers.contains(uuid))
-		{
-			completeUsers.add(uuid);
-		}
+		completeUsers.add(uuid);
 	}
 
 	@Override
-	public void resetUser(UUID uuid)
+	public void resetUser(@Nullable UUID uuid)
 	{
-		completeUsers.remove(uuid);
-		userProgress.remove(uuid);
-	}
-
-	@Override
-	public void resetAll()
-	{
-		completeUsers.clear();
-		userProgress.clear();
+	    if(uuid == null)
+        {
+            completeUsers.clear();
+            userProgress.clear();
+        } else
+        {
+            completeUsers.remove(uuid);
+            userProgress.remove(uuid);
+        }
 	}
 	
 	@Override
-	public void tickTask(IQuest quest, EntityPlayer player)
+	public void tickTask(DBEntry<IQuest> quest, ParticipantInfo pInfo)
 	{
-		if(player.ticksExisted%60 != 0 || QuestingAPI.getAPI(ApiReference.SETTINGS).getProperty(NativeProps.EDIT_MODE) || player.getServer() == null)
+		if(pInfo.PLAYER.ticksExisted%60 != 0 || QuestingAPI.getAPI(ApiReference.SETTINGS).getProperty(NativeProps.EDIT_MODE) || pInfo.PLAYER.getServer() == null)
 		{
 			return;
 		}
 		
-		detect(player, quest);
+		detect(pInfo, quest);
 		
-		UUID uuid = QuestingAPI.getQuestingUUID(player);
-		
-		PlayerData pData = PlayerDataController.instance.getDataFromUsername(player.getServer(), player.getGameProfile().getName());
+		PlayerData pData = PlayerDataController.instance.getDataFromUsername(pInfo.PLAYER.getServer(), pInfo.PLAYER.getGameProfile().getName());
 		
 		if(pData == null || !pData.factionData.factionData.containsKey(factionID))
 		{
 			return;
 		}
 		
-		int cur = pData.factionData.getFactionPoints(player, factionID);
+		int cur = pData.factionData.getFactionPoints(pInfo.PLAYER, factionID);
 		
-		if(getUsersProgress(uuid) != cur)
+		if(getUsersProgress(pInfo.UUID) != cur)
 		{
-			setUserProgress(uuid, pData.factionData.getFactionPoints(player, factionID));
+			setUserProgress(pInfo.UUID, pData.factionData.getFactionPoints(pInfo.PLAYER, factionID));
 		}
 	}
 	
 	@Override
-	public void detect(EntityPlayer player, IQuest quest)
+	public void detect(ParticipantInfo pInfo, DBEntry<IQuest> quest)
 	{
-		if(isComplete(QuestingAPI.getQuestingUUID(player)) || player.getServer() == null)
+		if(isComplete(pInfo.UUID) || pInfo.PLAYER.getServer() == null)
 		{
 			return;
 		}
 		
-		PlayerData pData = PlayerDataController.instance.getDataFromUsername(player.getServer(), player.getGameProfile().getName());
+		PlayerData pData = PlayerDataController.instance.getDataFromUsername(pInfo.PLAYER.getServer(), pInfo.PLAYER.getGameProfile().getName());
 		
 		if(pData == null || !pData.factionData.factionData.containsKey(factionID))
 		{
 			return;
 		}
 		
-		int points = pData.factionData.getFactionPoints(player, factionID);
+		int points = pData.factionData.getFactionPoints(pInfo.PLAYER, factionID);
 		
 		boolean flag = operation.checkValues(points, target);
 		
 		if(flag)
 		{
-			setComplete(QuestingAPI.getQuestingUUID(player));
+			setComplete(pInfo.UUID);
+			pInfo.markDirty(Collections.singletonList(quest.getID()));
 		}
 	}
 	
@@ -140,51 +132,38 @@ public class TaskNpcFaction implements ITaskTickable, IProgression<Integer>
 	}
 	
 	@Override
-    public void readProgressFromNBT(NBTTagCompound json, boolean merge)
+    public void readProgressFromNBT(NBTTagCompound nbt, boolean merge)
 	{
-		completeUsers.clear();
-		NBTTagList cList = json.getTagList("completeUsers", 8);
+		if(!merge)
+        {
+            completeUsers.clear();
+            userProgress.clear();
+        }
+		
+		NBTTagList cList = nbt.getTagList("completeUsers", 8);
 		for(int i = 0; i < cList.tagCount(); i++)
 		{
-			NBTBase entry = cList.get(i);
-			
-			if(entry.getId() != 8)
-			{
-				continue;
-			}
-			
 			try
 			{
-				completeUsers.add(UUID.fromString(((NBTTagString)entry).getString()));
+				completeUsers.add(UUID.fromString(cList.getStringTagAt(i)));
 			} catch(Exception e)
 			{
 				BQ_NPCs.logger.log(Level.ERROR, "Unable to load UUID for task", e);
 			}
 		}
 		
-		userProgress.clear();
-		NBTTagList pList = json.getTagList("userProgress", 10);
-		for(int i = 0; i < pList.tagCount(); i++)
+		NBTTagList pList = nbt.getTagList("userProgress", 10);
+		for(int n = 0; n < pList.tagCount(); n++)
 		{
-			NBTBase entry = pList.get(i);
-			
-			if(entry.getId() != 10)
-			{
-				continue;
-			}
-			
-			NBTTagCompound pTag = (NBTTagCompound)entry;
-			UUID uuid;
 			try
 			{
-				uuid = UUID.fromString(pTag.getString("uuid"));
+                NBTTagCompound pTag = pList.getCompoundTagAt(n);
+                UUID uuid = UUID.fromString(pTag.getString("uuid"));
+                userProgress.put(uuid, pTag.getInteger("value"));
 			} catch(Exception e)
 			{
 				BQ_NPCs.logger.log(Level.ERROR, "Unable to load user progress for task", e);
-				continue;
 			}
-			
-			userProgress.put(uuid, pTag.getInteger("value"));
 		}
 	}
 	
@@ -199,33 +178,48 @@ public class TaskNpcFaction implements ITaskTickable, IProgression<Integer>
 	}
 	
 	@Override
-	public NBTTagCompound writeProgressToNBT(NBTTagCompound json, List<UUID> users)
+	public NBTTagCompound writeProgressToNBT(NBTTagCompound nbt, @Nullable List<UUID> users)
 	{
 		NBTTagList jArray = new NBTTagList();
-		for(UUID uuid : completeUsers)
-		{
-			jArray.appendTag(new NBTTagString(uuid.toString()));
-		}
-		json.setTag("completeUsers", jArray);
-		
 		NBTTagList progArray = new NBTTagList();
-		for(Entry<UUID,Integer> entry : userProgress.entrySet())
-		{
-			NBTTagCompound pJson = new NBTTagCompound();
-			pJson.setString("uuid", entry.getKey().toString());
-			pJson.setInteger("value", entry.getValue());
-			progArray.appendTag(pJson);
-		}
-		json.setTag("userProgress", progArray);
 		
-		return json;
+		if(users != null)
+        {
+            users.forEach((uuid) -> {
+                if(completeUsers.contains(uuid)) jArray.appendTag(new NBTTagString(uuid.toString()));
+                
+                Integer data = userProgress.get(uuid);
+                if(data != null)
+                {
+                    NBTTagCompound pJson = new NBTTagCompound();
+                    pJson.setString("uuid", uuid.toString());
+                    pJson.setInteger("value", data);
+                    progArray.appendTag(pJson);
+                }
+            });
+        } else
+        {
+            completeUsers.forEach((uuid) -> jArray.appendTag(new NBTTagString(uuid.toString())));
+            
+            userProgress.forEach((uuid, data) -> {
+                NBTTagCompound pJson = new NBTTagCompound();
+			    pJson.setString("uuid", uuid.toString());
+                pJson.setInteger("value", data);
+                progArray.appendTag(pJson);
+            });
+        }
+		
+		nbt.setTag("completeUsers", jArray);
+		nbt.setTag("userProgress", progArray);
+		
+		return nbt;
 	}
 	
 	@Override
     @SideOnly(Side.CLIENT)
-	public IGuiPanel getTaskGui(IGuiRect rect, IQuest quest)
+	public IGuiPanel getTaskGui(IGuiRect rect, DBEntry<IQuest> quest)
 	{
-		return new PanelTaskFaction(rect, quest, this);
+		return new PanelTaskFaction(rect, this);
 	}
 	
 	public enum PointOperation
@@ -273,18 +267,16 @@ public class TaskNpcFaction implements ITaskTickable, IProgression<Integer>
 
 	@Override
     @SideOnly(Side.CLIENT)
-	public GuiScreen getTaskEditor(GuiScreen parent, IQuest quest)
+	public GuiScreen getTaskEditor(GuiScreen parent, DBEntry<IQuest> quest)
 	{
 		return null;
 	}
-
-	@Override
-	public void setUserProgress(UUID uuid, Integer progress)
+ 
+	private void setUserProgress(UUID uuid, Integer progress)
 	{
 		userProgress.put(uuid, progress);
 	}
-
-	@Override
+ 
 	public Integer getUsersProgress(UUID... users)
 	{
 		int i = 0;
@@ -296,29 +288,5 @@ public class TaskNpcFaction implements ITaskTickable, IProgression<Integer>
 		}
 		
 		return i;
-	}
-
-	@Override
-	public Integer getGlobalProgress()
-	{
-		int total = 0;
-		
-		for(Integer i : userProgress.values())
-		{
-			total += i == null? 0 : i;
-		}
-		
-		return total;
-	}
-
-	@Override
-	public float getParticipation(UUID uuid)
-	{
-		if(target <= 0)
-		{
-			return 1F;
-		}
-		
-		return getUsersProgress(uuid) / (float)target;
 	}
 }

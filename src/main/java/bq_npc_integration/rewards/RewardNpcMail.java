@@ -4,6 +4,7 @@ import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.storage.DBEntry;
 import bq_npc_integration.client.gui.rewards.PanelRewardMail;
 import bq_npc_integration.core.BQ_NPCs;
 import bq_npc_integration.rewards.factory.FactoryRewardMail;
@@ -36,13 +37,13 @@ public class RewardNpcMail implements IReward
 	}
 	
 	@Override
-	public boolean canClaim(EntityPlayer player, IQuest quest)
+	public boolean canClaim(EntityPlayer player, DBEntry<IQuest> quest)
 	{
 		return true;
 	}
 	
 	@Override
-	public void claimReward(EntityPlayer player, IQuest quest)
+	public void claimReward(EntityPlayer player, DBEntry<IQuest> quest)
 	{
 		if(mail.isValid())
 		{
@@ -87,14 +88,14 @@ public class RewardNpcMail implements IReward
 	
 	@Override
     @SideOnly(Side.CLIENT)
-	public IGuiPanel getRewardGui(IGuiRect rect, IQuest quest)
+	public IGuiPanel getRewardGui(IGuiRect rect, DBEntry<IQuest> quest)
 	{
-		return new PanelRewardMail(rect, quest, this);
+		return new PanelRewardMail(rect, this);
 	}
  
 	@Override
     @SideOnly(Side.CLIENT)
-	public GuiScreen getRewardEditor(GuiScreen parent, IQuest quest)
+	public GuiScreen getRewardEditor(GuiScreen parent, DBEntry<IQuest> quest)
 	{
 		return null;
 	}

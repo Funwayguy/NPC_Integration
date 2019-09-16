@@ -1,6 +1,5 @@
 package bq_npc_integration.client.gui.rewards;
 
-import betterquesting.api.questing.IQuest;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.client.gui.misc.GuiAlign;
 import betterquesting.api2.client.gui.misc.GuiPadding;
@@ -19,13 +18,11 @@ import org.lwjgl.util.vector.Vector4f;
 public class PanelRewardMail extends CanvasEmpty
 {
     private final RewardNpcMail reward;
-    private final IQuest quest;
     
-    public PanelRewardMail(IGuiRect rect, IQuest quest, RewardNpcMail reward)
+    public PanelRewardMail(IGuiRect rect, RewardNpcMail reward)
     {
         super(rect);
         this.reward = reward;
-        this.quest = quest;
     }
     
     @Override

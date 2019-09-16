@@ -1,7 +1,6 @@
 package bq_npc_integration.client.gui.tasks;
 
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.questing.IQuest;
 import betterquesting.api2.client.gui.misc.*;
 import betterquesting.api2.client.gui.panels.CanvasEmpty;
 import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
@@ -18,13 +17,11 @@ import noppes.npcs.controllers.data.Quest;
 public class PanelTaskQuest extends CanvasEmpty
 {
     private final TaskNpcQuest task;
-    private final IQuest quest;
     
-    public PanelTaskQuest(IGuiRect rect, IQuest quest, TaskNpcQuest task)
+    public PanelTaskQuest(IGuiRect rect, TaskNpcQuest task)
     {
         super(rect);
         this.task = task;
-        this.quest = quest;
     }
     
     @Override
